@@ -1,0 +1,2 @@
+#!/bin/sh
+mipsel-unknown-elf-gcc -D__PSXSDK__ -D__PSXOS__ -fno-strict-overflow -fsigned-char -msoft-float -fno-builtin -G0 -nostdlib -fPIC -mabicalls -T /usr/local/psxsdk/mipsel-unknown-elf/lib/ldscripts/psxos.x $*

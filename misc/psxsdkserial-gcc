@@ -1,0 +1,2 @@
+#!/bin/sh
+mipsel-unknown-elf-gcc -D__PSXSDK__ -fno-strict-overflow -fsigned-char -msoft-float -mno-gpopt -fno-builtin -G0 -I/usr/local/psxsdk/include -T /usr/local/psxsdk/mipsel-unknown-elf/lib/ldscripts/psxsdkserial.x $*
