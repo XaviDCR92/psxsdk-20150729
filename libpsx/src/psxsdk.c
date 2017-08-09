@@ -45,7 +45,8 @@ void _internal_cdromlib_init(void);
 
 static unsigned int psxSdkFlags = 0;
 
-static unsigned char *psxBiosState; 
+static unsigned char *psxBiosState;
+unsigned char psxsdkPadArr[PAD_READ_RAW_SIZE][2];
 
 extern void _96_remove(void);
 extern void _96_init(void);
@@ -131,7 +132,6 @@ void PSX_DeInit(void)
 void PSX_ReadPad(unsigned short *padbuf, unsigned short *padbuf2)
 {
 	int x;
-	unsigned char arr[PAD_READ_RAW_SIZE];
 	unsigned short *padbuf_a[2];
 	
 // Now uses low level pad routines...	
@@ -140,6 +140,8 @@ void PSX_ReadPad(unsigned short *padbuf, unsigned short *padbuf2)
 		
 	for(x = 0; x < 2; x++)
 	{
+        unsigned char* arr = psxsdkPadArr[x];
+
 		pad_read_raw(x, arr);
 		
 		if(arr[2] == 0x5a)
@@ -152,38 +154,36 @@ void PSX_ReadPad(unsigned short *padbuf, unsigned short *padbuf2)
 	}
 }
 
-unsigned char psxsdkPadArr[PAD_READ_RAW_SIZE];
+void PSX_ReadMouse(unsigned short* dig_pad1, unsigned short* adc_pad1)
+{
+    unsigned char* arr = psxsdkPadArr[0];
+
+    unsigned char pad_cmd[PAD_READ_RAW_SIZE] = {1,0x42,0,0,0,0,0}; // 2 extra bytes than digital pad
+	
+	pad_cmd[3] = 0; // Mouse vibration == 0?
+	pad_cmd[4] = 0; // Mouse vibration == 0?
+	
+	QueryPAD(0, pad_cmd, arr, sizeof(pad_cmd));
+
+    if(arr[2] == 0x5A)
+    {
+        *dig_pad1 = (arr[3]<<8)|arr[4];
+        *dig_pad1 = ~*dig_pad1;
+        *adc_pad1 = (arr[5]<<8)|arr[6];
+    }
+    else
+    {
+        *dig_pad1 = 0;
+        *adc_pad1 = 0;
+    }
+}
 
 void PSX_PollPad_Fast(int pad_num, psx_pad_state *pad_state)
 {
-//	int x;
-	/*unsigned short *padbuf_a[2];
-	
-// Now uses low level pad routines...	
-	padbuf_a[0] = padbuf;
-	padbuf_a[1] = padbuf2;
-		
-	for(x = 0; x < 2; x++)
-	{
-		pad_read_raw(x, arr);
-		
-		if(arr[2] == 0x5a)
-		{
-			*padbuf_a[x] = (arr[3]<<8)|arr[4];
-			*padbuf_a[x] = ~*padbuf_a[x];
-		}
-		else
-			*padbuf_a[x] = 0;
-	}*/
-	
-	/*unsigned char *arr = psxsdkPadArr;
-	
-	pad_read_raw(pad_num, arr);*/
-	
 	//Rely on pad_read_raw being called AFTER PSX_ReadPad(),
 	//so that pad_read_raw is only called once.
 	
-	unsigned char *arr = psxsdkPadArr;
+	unsigned char *arr = psxsdkPadArr[pad_num];
 	
 	pad_state->status = arr[0];
 	pad_state->id = arr[1];
@@ -233,33 +233,12 @@ void PSX_PollPad_Fast(int pad_num, psx_pad_state *pad_state)
 	}
 }
 
-void PSX_PollPad(int pad_num, psx_pad_state *pad_state)
+void PSX_PollPad(int pad_num)
 {
-//	int x;
-	/*unsigned short *padbuf_a[2];
 	
-// Now uses low level pad routines...	
-	padbuf_a[0] = padbuf;
-	padbuf_a[1] = padbuf2;
-		
-	for(x = 0; x < 2; x++)
-	{
-		pad_read_raw(x, arr);
-		
-		if(arr[2] == 0x5a)
-		{
-			*padbuf_a[x] = (arr[3]<<8)|arr[4];
-			*padbuf_a[x] = ~*padbuf_a[x];
-		}
-		else
-			*padbuf_a[x] = 0;
-	}*/
+	pad_read_raw(pad_num, psxsdkPadArr[pad_num]);
 	
-	unsigned char *arr = psxsdkPadArr;
-	
-	pad_read_raw(pad_num, arr);
-	
-	PSX_PollPad_Fast(pad_num,pad_state);
+	//PSX_PollPad_Fast(pad_num,pad_state);
 }
 
 /*int PSX_GetPadType(unsigned int pad_num)
@@ -386,14 +365,14 @@ int SetRCnt(int spec, unsigned short target, unsigned int mode)
 	return 1;
 }
 
-int GetRCnt(int spec)
+unsigned short GetRCnt(int spec)
 {
 	spec &= 0xf;
 	
 	if(spec >= 4)
 		return -1;
 	
-	return (RCNT_COUNT(spec) & 0xffff);
+	return ((unsigned short)RCNT_COUNT(spec) & 0xffff);
 }
 
 int StartRCnt(int spec)
@@ -505,11 +484,23 @@ void SetRCntHandler(void (*callback)(), int spec, unsigned short target)
 	StartRCnt(spec);
 	
 	EnterCriticalSection();
-	rcnt_handler_event_id = OpenEvent(spec, 2, 0x1000, rcnt_handler);
+	rcnt_handler_event_id = OpenEvent(0xF0000000 | spec, 2, 0x1000, rcnt_handler);
+
+    dprintf("rcnt_handler_event_id = 0x%08X\n", rcnt_handler_event_id);
 	EnableEvent(rcnt_handler_event_id);
+
+    ChangeClearRCnt(spec, 1);
+
+    
 	
 	rcnt_handler_callback = callback;
 	rcnt_handler_set = spec;
+
+    dprintf("RCntHandler(): set following address = 0x%08X\n", callback);
+
+    dprintf("I_MASK = 0x%08X\n", IMASK);
+
+    RCNT_COUNT(spec) = 0;
 
 	switch(spec)
 	{

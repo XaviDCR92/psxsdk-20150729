@@ -318,7 +318,7 @@ int libc_get_transtbl_fname(char *tofind, char *outstr, int outl)
 	FILE *f;
 	int s;
 	int x;
-	int type;
+	int type = 0;
 	int y;
 	int l = strlen(tofind);
 	int filename_found = 0;

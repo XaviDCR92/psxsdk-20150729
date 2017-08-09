@@ -24,15 +24,13 @@ void psxsdk_setup()
 {
 	unsigned int x;
 
-	printf("Call... \n");
 	printf("Initializing PSXSDK... \n");
 
-    printf("__bss_start = 0x%08X, __bss_end = 0x%08X\n", __bss_start, __bss_end);
+    dprintf("__bss_start = 0x%08X, __bss_end = 0x%08X\n", __bss_start, __bss_end);
 
 // Clear BSS space	
 	for(x = (unsigned int)__bss_start; x < (unsigned int)__bss_end; x++)
     {
-        dprintf("0x%08X\n", x);
 		*((unsigned char*)x) = 0;
     }
 

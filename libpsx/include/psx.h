@@ -207,6 +207,8 @@ void PSX_InitEx(unsigned int flags);
  */
 void PSX_ReadPad(unsigned short *padbuf, unsigned short *padbuf2);
 
+void PSX_ReadMouse(unsigned short* dig_pad1, unsigned short* adc_pad1);
+
 /**
  * Polls a joypad for information.
  * @attention Note that some joypads, like the official ones from Sony, do not like to be polled more than 
@@ -216,7 +218,7 @@ void PSX_ReadPad(unsigned short *padbuf, unsigned short *padbuf2);
  * @param pad_state Pointer to a psx_pad_state structure in which to store information for the pad.
  */
  
-void PSX_PollPad(int pad_num, psx_pad_state *pad_state);
+void PSX_PollPad(int pad_num);
 
 /**
  * Takes a pointer to a struct psx_info structure, and fills it
@@ -331,7 +333,7 @@ int SetRCnt(int spec, unsigned short target, unsigned int mode);
  * @return TO DO
  */
 
-int GetRCnt(int spec);
+unsigned short GetRCnt(int spec);
 
 /**
  * Start root counter (documentation TO DO)
@@ -382,6 +384,8 @@ unsigned int PSX_GetInitFlags(void);
  */
 
 void SetVBlankHandler(void (*h)());
+
+void ChangeClearRCnt(int timer, int flag);
 
 /**
  * Removes a previously set VBlank handler.

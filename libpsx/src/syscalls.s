@@ -105,6 +105,7 @@ GetRamSize:
 .global WaitEvent
 .global TestEvent
 .global DeliverEvent
+.global ChangeClearRCnt
 
 OpenEvent:
 	li $9, 0x08
@@ -125,6 +126,11 @@ DisableEvent:
 	li $9, 0x0d
 	j 0xb0
 	nop
+
+ChangeClearRCnt:
+    li $9, 0x0A
+    j 0xc0
+    nop
 
 DeliverEvent:
 	li $9, 0x07
