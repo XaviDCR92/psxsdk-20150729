@@ -6,9 +6,9 @@
 #include <stdarg.h>
 #include <psx.h>
 
-#define CDREG(x)	*((unsigned char*)(0x1f801800+x))
-#define IMASK		*((unsigned int*)0x1f801074)
-#define IPENDING	*((unsigned int*)0x1f801070)
+#define CDREG(x)	*((volatile unsigned char*)(0x1f801800+x))
+#define IMASK		*((volatile unsigned int*)0x1f801074)
+#define IPENDING	*((volatile unsigned int*)0x1f801070)
 
 void _internal_cdrom_handler();
 void (*cdrom_handler_callback)();

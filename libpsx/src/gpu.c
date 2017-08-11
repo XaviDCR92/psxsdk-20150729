@@ -15,14 +15,14 @@ static unsigned int linked_list_pos;
 int fb_font_x, fb_font_y, fb_font_cx, fb_font_cy;
 
 #define GPU_DATA_PORT_ADDR			0x1f801810
-#define GPU_CONTROL_PORT_ADDR			0x1f801814
-#define GPU_DATA_PORT				*((unsigned int*)GPU_DATA_PORT_ADDR)
-#define GPU_CONTROL_PORT			*((unsigned int*)GPU_CONTROL_PORT_ADDR) 
+#define GPU_CONTROL_PORT_ADDR		0x1f801814
+#define GPU_DATA_PORT				*((volatile unsigned int*)GPU_DATA_PORT_ADDR)
+#define GPU_CONTROL_PORT			*((volatile unsigned int*)GPU_CONTROL_PORT_ADDR) 
 
-#define DPCR					*((unsigned int*)0x1f8010f0)
-#define D2_MADR					*((unsigned int*)0x1f8010a0)
-#define D2_BCR					*((unsigned int*)0x1f8010a4)
-#define D2_CHCR					*((unsigned int*)0x1f8010a8)
+#define DPCR					*((volatile unsigned int*)0x1f8010f0)
+#define D2_MADR					*((volatile unsigned int*)0x1f8010a0)
+#define D2_BCR					*((volatile unsigned int*)0x1f8010a4)
+#define D2_CHCR					*((volatile unsigned int*)0x1f8010a8)
 
 #define get_clutid(cx, cy)			(((cx&0x3ff)>>4)|((cy&0x1ff)<<6))
 
@@ -1091,7 +1091,9 @@ void GsUploadCLUT(GsImage * image)
 int GsSpriteFromImage(GsSprite *sprite, GsImage *image, int do_upload)
 {
 	if(do_upload)
+    {
 		GsUploadImage(image);
+    }
 		
 	bzero(sprite, sizeof(GsSprite));
 	

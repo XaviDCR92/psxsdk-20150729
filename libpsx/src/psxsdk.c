@@ -10,11 +10,11 @@
 #include <string.h>
 #include "exception.h"
 
-#define IPENDING				*((unsigned int*)0x1f801070)
-#define IMASK					*((unsigned int*)0x1f801074)
-#define RCNT_COUNT(x)			*((unsigned int*)(0x1f801100 + (x<<4)))
-#define RCNT_MODE(x)			*((unsigned int*)(0x1f801104 + (x<<4)))
-#define RCNT_TARGET(x)		*((unsigned int*)(0x1f801108 + (x<<4)))
+#define IPENDING				*((volatile unsigned int*)0x1f801070)
+#define IMASK					*((volatile unsigned int*)0x1f801074)
+#define RCNT_COUNT(x)			*((volatile unsigned int*)(0x1f801100 + (x<<4)))
+#define RCNT_MODE(x)			*((volatile unsigned int*)(0x1f801104 + (x<<4)))
+#define RCNT_TARGET(x)		*((volatile unsigned int*)(0x1f801108 + (x<<4)))
 
 const char *sysromver_unavail = "System ROM Version Unavailable";
 

@@ -2,7 +2,7 @@
 
 include ../Makefile.cfg
 
-CFLAGS += -O0
+CFLAGS += -Os
 
 OBJS =	$(patsubst src/%.c, out/%.o, $(wildcard src/*.c)) \
 		$(patsubst src/libc/%.c, out/libc/%.o, $(wildcard src/libc/*.c)) \
