@@ -682,46 +682,11 @@ void GsSetDrawEnv(GsDrawEnv *drawenv)
 void GsSetDrawEnv_DMA(GsDrawEnv* drawenv)
 {
 	unsigned int orig_pos = linked_list_pos;
-	//unsigned char pkt;
-	
-	/*pkt = 0xE1;
-	linked_list[linked_list_pos++] = 0x01000000;
-	linked_list[linked_list_pos++] = (pkt << 24) |(drawenv->draw_on_display>=1)<<10|(drawenv->dither>=1)<<9;
-	
-	linked_list[orig_pos] |= ((unsigned int)&linked_list[linked_list_pos]) & 0x00ffffff;
-	
-	orig_pos = linked_list_pos;
-	pkt = 0xE2;
-	linked_list[linked_list_pos++] = 0x01000000;
-	linked_list[linked_list_pos++] = (pkt << 24);
-	
-	linked_list[orig_pos] |= ((unsigned int)&linked_list[linked_list_pos]) & 0xffffff;
-	
-	orig_pos = linked_list_pos;
-	pkt = 0xE3;
-	linked_list[linked_list_pos++] = 0x01000000;
-	linked_list[linked_list_pos++] = ((pkt << 24) | (drawenv->x & 0x7FF) | ((drawenv->y & 0x7FF) << 11));
-	
-	linked_list[orig_pos] |= ((unsigned int)&linked_list[linked_list_pos]) & 0xffffff;
-	
-	orig_pos = linked_list_pos;
-	pkt = 0xE4;
-	linked_list[linked_list_pos++] = 0x01000000;
-	linked_list[linked_list_pos++] = ((pkt << 24) | ((drawenv->x + drawenv->w - 1) & 0x7FF) | (((drawenv->y + drawenv->h - 1) & 0x7FF) << 10));
-	
-	linked_list[orig_pos] |= ((unsigned int)&linked_list[linked_list_pos]) & 0xffffff;
-	
-	orig_pos = linked_list_pos;
-	pkt = 0xE5;
-	linked_list[linked_list_pos++] = 0x01000000;
-	linked_list[linked_list_pos++] = ((pkt << 24) | ((drawenv->x + drawenv->w - 1) & 0x7FF) | (((drawenv->y + drawenv->h - 1) & 0x7FF) << 11));
-	
-	linked_list[orig_pos] |= ((unsigned int)&linked_list[linked_list_pos]) & 0xffffff;
-	
-	//GsCurDrawEnvW = drawenv->w;
-	//GsCurDrawEnvH = drawenv->h;*/
-	
-	linked_list[linked_list_pos++] = 0x05000000;
+
+    //GsDrawListPIO();
+
+    linked_list[linked_list_pos++] = 0x05000000;
+    
 	linked_list[linked_list_pos++] = (0xE1 << 24) |(drawenv->draw_on_display>=1)<<10|(drawenv->dither>=1)<<9;
 	linked_list[linked_list_pos++] = (0xE2 << 24);
 	linked_list[linked_list_pos++] = ((0xE3 << 24) | (drawenv->x & 0x7FF) | ((drawenv->y & 0x3FF) << 10));
@@ -729,27 +694,9 @@ void GsSetDrawEnv_DMA(GsDrawEnv* drawenv)
 	linked_list[linked_list_pos++] = ((0xE5 << 24) | ((drawenv->x) & 0x7FF) | (((drawenv->y ) & 0x7FF) << 11));
 	
 	linked_list[orig_pos] |= ((unsigned int)&linked_list[linked_list_pos]) & 0xffffff;
-	
+
 	GsCurDrawEnvW = drawenv->w;
 	GsCurDrawEnvH = drawenv->h;
-	
-	/*
-	 * 
-	 * draw_mode_packet = (0xe1<<24)|(drawenv->draw_on_display>=1)<<10|
-		(drawenv->dither>=1)<<9;	
-
-	gpu_data_ctrl(0xe1, draw_mode_packet);	
-	gpu_data_ctrl(0xe2, 0);
-	gpu_data_ctrl(0xe3, (drawenv->y<<10)|drawenv->x);
-	
-	end_x = (drawenv->x + drawenv->w)-1;
-	end_y = (drawenv->y + drawenv->h)-1;
-	
-	gpu_data_ctrl(0xe4, (end_y<<10)|end_x);
-	
-	//#warning "Check drawing offset better."
-	gpu_data_ctrl(0xe5, (drawenv->y<<11)|drawenv->x);
-	//gpu_data_ctrl(0xe5, 0);*/
 }
 
 void GsSetDrawEnv_Ex(GsDrawEnv *drawenv)
@@ -797,9 +744,12 @@ void GsSetDispEnv(GsDispEnv *dispenv)
 void GsSetDispEnv_DMA(GsDispEnv *dispenv)
 {
 	unsigned int orig_pos = linked_list_pos;
-	
-	linked_list[linked_list_pos++] = 0x01000000;
-	linked_list[linked_list_pos++] = (0x05 << 24) | (dispenv->x & 0x3FF) | ((dispenv->y & 0x3FF) << 10);
+
+    //GsDrawListPIO();
+
+    linked_list[linked_list_pos++] = 0x01000000;
+
+    linked_list[linked_list_pos++] = (0x05 << 24) | (dispenv->x & 0x3FF) | ((dispenv->y & 0x3FF) << 10);
 	
 	linked_list[orig_pos] |= ((unsigned int)&linked_list[linked_list_pos]) & 0xffffff;
 }

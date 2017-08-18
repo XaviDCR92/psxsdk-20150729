@@ -48,11 +48,14 @@ int querypad_rxrdy = 1;
 
 void QueryPAD(int pad_n, unsigned char *in, unsigned char *out, int len)
 {
-	int x;
-	int y;
-	int i;
-	unsigned char TempData;
-	int EmuFlag = 0;
+    // Local variables need to be declared as volatile or pads will not
+    // run under real hw. Probably because the compiler is optimizing away
+    // the foor loops made for timing requirements?
+	volatile int x;
+	volatile int y;
+	volatile int i;
+	volatile unsigned char TempData;
+	volatile int EmuFlag = 0;
 	
 	PADSIO_MODE(0) = 0xD;
 	PADSIO_BAUD(0) = 0x88;
@@ -163,4 +166,3 @@ void pad_set_analog(int pad_n, int lock)
 	QueryPAD(pad_n, pad_cmd2, NULL, sizeof(pad_cmd));	
 	pad_escape_mode(pad_n, 0);
 }*/
-
