@@ -87,7 +87,7 @@ void SsKeyOff(int voice);
  * Set the voices specified by the bitmask to 'on'. Like SsKeyOn()
  * @param mask Bitmask
  */
- 
+
 void SsKeyOnMask(int mask);
 
 /**
@@ -160,7 +160,7 @@ void SsUploadVag(SsVag *vag);
  * @param vr Right channel volume
  */
 
-void SsPlayVag(SsVag *vag, unsigned char voice, unsigned short vl, 
+void SsPlayVag(SsVag *vag, unsigned char voice, unsigned short vl,
 	unsigned short vr);
 
 /**

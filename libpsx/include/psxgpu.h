@@ -7,7 +7,7 @@
  * The display is left disabled.
  * You can enable it with GsEnableDisplay() or more preferably with GsSetVideoMode()
  */
- 
+
 void GsInit(void);
 
 /**
@@ -15,15 +15,15 @@ void GsInit(void);
  *
  * The display is left disabled.
  * You can enable it with GsEnableDisplay() or more preferably with GsSetVideoMode()
- * @param flags Flag bitmask 
+ * @param flags Flag bitmask
  */
- 
+
 void GsInitEx(unsigned int flags);
 
 /**
  * Resets the GPU
  */
- 
+
 void GsReset(void);
 
 /**
@@ -33,7 +33,7 @@ void GsReset(void);
  * the display is enabled automatically by GsSetVideoMode().
  * @param enable If TRUE (>=1) the display will be enabled, if FALSE (== 0) it will be disabled
  */
- 
+
 void GsEnableDisplay(int enable);
 
 /**
@@ -42,8 +42,8 @@ void GsEnableDisplay(int enable);
  * @param width Width
  + 640, 384, 320 and 256 are supported by the PlayStation hardware.
  * @param height Height
- + 480 and 240 are supported by the PlayStation hardware. 
- *  You probably want to use GsSetVideoModeEx() if you set 
+ + 480 and 240 are supported by the PlayStation hardware.
+ *  You probably want to use GsSetVideoModeEx() if you set
  *   480 here, because this function doesn't enable interlacing.
  *  @param video_mode Video mode
  + VMODE_NTSC for NTSC, VMODE_PAL for PAL
@@ -58,7 +58,7 @@ int GsSetVideoMode(int width, int height, int video_mode);
   * @param width Width
  + 640, 384, 320 and 256 are supported by the PlayStation hardware.
  * @param height Height
- + 480 and 240 are supported by the PlayStation hardware. 
+ + 480 and 240 are supported by the PlayStation hardware.
   *  @param video_mode Video mode
  + VMODE_NTSC for NTSC, VMODE_PAL for PAL
  * @param rgb24 24-bit RGB mode
@@ -92,7 +92,7 @@ void GsSetList(unsigned int *listptr);
  * @param listptr Pointer to primitive list
  * @param listpos List position
  */
- 
+
 void GsSetListEx(unsigned int *listptr, unsigned int listpos);
 
 /**
@@ -100,22 +100,22 @@ void GsSetListEx(unsigned int *listptr, unsigned int listpos);
  *
  * This also has the effect of resetting the current drawing list position.
  */
- 
+
 void GsDrawList(void);
 
 /**
  * Draws the primitive list using port I/O access.
- * 
+ *
  * GsDrawList() uses DMA to transfer the primitive data in the linked list to the GPU.
  *
- * This function which is of main interest to low-level programmers, uses GPU port I/O access instead, 
+ * This function which is of main interest to low-level programmers, uses GPU port I/O access instead,
  * and it is slower (as reads and writes must be done by the main CPU), but works in all situations,
  * even when you can't get DMA working.
  *
  * This function due to its nature is blocking, and always waits for completion.
  */
- 
-void GsDrawListPIO(void); 
+
+void GsDrawListPIO(void);
 
 /**
  * Makes non-blocking gpu functions like GsDrawList()
@@ -129,13 +129,13 @@ void GsSetAutoWait(void);
 typedef struct
 {
 	/** Red color component (0-255) */
-	unsigned char r; 
+	unsigned char r;
 	/** Green color component (0-255) */
 	unsigned char g;
 	/** Blue color component (0-255) */
-	unsigned char b; 
+	unsigned char b;
 	/** X Coordinates for vertexes */
-	short x[3]; 
+	short x[3];
 	/** Y Coordinates for vertexes */
 	short y[3];
 	/** Attribute bitmask */
@@ -147,12 +147,12 @@ typedef struct
 typedef struct
 {
 	/** Red color component (0-255) */
-	unsigned char r; 
+	unsigned char r;
 	/** Green color component (0-255) */
 	unsigned char g;
 	/** Blue color component (0-255) */
-	unsigned char b; 
-	/** X Coordinates for vertexes */	
+	unsigned char b;
+	/** X Coordinates for vertexes */
 	short x[4];
 	/** Y Coordinates for vertexes */
 	short y[4];
@@ -165,7 +165,7 @@ typedef struct
 typedef struct
 {
 	/** Red color component (0-255) */
-	unsigned char r; 
+	unsigned char r;
 	/** Green color component (0-255) */
 	unsigned char g;
 	/** Blue color component (0-255) */
@@ -373,28 +373,28 @@ typedef struct
 	unsigned char r, g, b; /* Luminosity of color components - 128 is normal luminosity */
 	unsigned char tpage; /* Texture page */
 	unsigned int attribute; /* Attribute */
-	
+
 	/* Scaling? These are only candidates...
-	
+
 	   scalex:
 	    Denotes horizontal scaling
-	    
+
 	    0 = true size (unmodified)
 	    1 = true size (*1)
 	    2 = double size (*2)
 	    3 = triple size (*3)
 	    ...
-	    
+
 	    -1 = true size (/1)
 	    -2 = half size (/2)
 	    -3 = one-third size (/3)
 	    ...
-	    
+
 	   scaley:
 	    Denotes vertical scaling
-	    
+
 	    *** The behaviour below was introduced in PSXSDK 0.5
-	    
+
 	    If scalex > 8,
 		resulting width will be (original_width * scalex) / 4096
 		scalex = 4096 (SCALE_ONE) (original width), scalex = 2048 (half width), etc.
@@ -412,7 +412,7 @@ typedef struct
 
 typedef struct
 {
-	
+
 	short x, y;
 	short w, h;
 	unsigned char r, g, b;
@@ -467,14 +467,14 @@ typedef struct
 //	unsigned char r, g, b; /* Luminosity of color components - 128 is normal luminosity */
 //	unsigned char tpage; /* Texture page */
 //	unsigned int attribute; /* Attribute */
-//	
+//
 //	unsigned short tmw, tmh; /* Map texture width and height */
 //	unsigned char tw, th; /* Map tile width and height */
-//	
+//
 //	unsigned char tsize; /* Size of tile in map (1 = 8-bit, 2 = 16-bit, 4 = 32-bit) */
 //
 //	unsigned int tmask; /* Inverted mask for tile number */
-//	
+//
 //	void *data; /* Pointer to beginning of map data */
 //}GsMap;
 
@@ -483,16 +483,16 @@ typedef struct
 enum psx_gpu_texmodes
 {
  /** 4-bit color mode */
- COLORMODE_4BPP, 
+ COLORMODE_4BPP,
  /** 8-bit color mode */
- COLORMODE_8BPP, 
+ COLORMODE_8BPP,
  /** 16-bit color mode */
- COLORMODE_16BPP, 
+ COLORMODE_16BPP,
  /** 24-bit color mode */
  COLORMODE_24BPP
 };
 
-/** 
+/**
  * This is the luminance factor with which images
  * are drawn as they are stored. (i.e. without applying lighting)
  *
@@ -540,7 +540,7 @@ enum psx_gpu_texmodes
 #define TRANS_MODE(x)		((x&3)<<2)
 /**
  * Enable semi-transparency processing for the primitive.
- */  
+ */
 #define ENABLE_TRANS		(1<<4)
 /**
  * Enable horizontal flipping for the primitive.
@@ -569,7 +569,7 @@ typedef struct
 	 * Usually you enable this flag when you do not want to use double buffering.
 	 */
 	unsigned char draw_on_display;
-	
+
 	/**
 	 * Drawing area X start coordinate in framebuffer
 	 */
@@ -591,17 +591,17 @@ typedef struct
 	 * Drawing offset
 	 */
 	//short off_x, off_y;
-	
+
 	/**
 	 * Masking settings (can also be set with GsSetMasking())
 	 */
-	
+
 	 /**
-	  * Do not draw over pixels which have their mask bit set 
+	  * Do not draw over pixels which have their mask bit set
 	  */
 	unsigned char ignore_mask;
 	 /**
-	  * If this is set, every pixel drawn will have the mask bit set 
+	  * If this is set, every pixel drawn will have the mask bit set
 	  */
 	unsigned char set_mask;
 }GsDrawEnv;
@@ -621,14 +621,14 @@ typedef struct
 }GsDispEnv;
 
 /**
- * Image 
+ * Image
  * @brief This structure describes a TIM image
  */
 
 typedef struct
 {
 
-	
+
 	/** Pixel (color) mode. 0 = 4bpp, 1 = 8bpp, 2 = 16bpp, 3 = 24bpp */
 	int pmode;
 	/** Reports whether this image has a Color Look Up Table. 1 if there's a CLUT, 0 otherwise. */
@@ -644,7 +644,7 @@ typedef struct
 	/** X coordinate of image in framebuffer */
 	int x;
 	/** Y coordinate of image in framebuffer */
-	int y; 
+	int y;
 	/** Width of image in framebuffer */
 	int w;
 	/** Height of image in framebuffer */
@@ -673,7 +673,7 @@ void GsSortPoly4(GsPoly4 *poly4);
  * Adds a textured 3 point polygon to the packet list
  * @param tpoly3 Pointer to structure for textured 3 point polygon
  */
- 
+
 void GsSortTPoly3(GsTPoly3 *tpoly3);
 
 /**
@@ -701,7 +701,7 @@ void GsSortGPoly4(GsGPoly4 *poly4);
  * Adds a gradated textured 3 point polygon to the packet list
  * @param tpoly3 Pointer to structure for textured 3 point polygon
  */
- 
+
 void GsSortGTPoly3(GsGTPoly3 *tpoly3);
 
 /**
@@ -715,21 +715,21 @@ void GsSortGTPoly4(GsGTPoly4 *tpoly4);
  * Adds a monochrome line to the packet list
  * @param line Pointer to structure for monochrome line
  */
- 
+
 void GsSortLine(GsLine *line);
 
 /**
  * Adds a gradated line to the packet list
  * @param line Pointer to structure for gradated line
  */
- 
+
 void GsSortGLine(GsGLine *line);
 
 /**
  * Adds a dot (pixel) to the packet list
  * @param dot Pointer to structure for dot
  */
- 
+
 void GsSortDot(GsDot *dot);
 
 /**
@@ -750,14 +750,14 @@ void GsSortSprite(GsSprite *sprite);
  *
  * @param sprite Pointer to structure for sprite
  */
- 
+
 void GsSortSimpleSprite(GsSprite *sprite);
 
 /**
  * Adds a rectangle to the packet list
  * @param rectangle Pointer to structure for rectangle
  */
- 
+
 void GsSortRectangle(GsRectangle *rectangle);
 
 /**
@@ -795,7 +795,7 @@ void LoadImage(void *img, int x, int y, int w, int h);
  * @param g Green (0 - 255)
  * @param b Blue (0 - 255)
  */
- 
+
 void DrawFBRect(int x, int y, int w, int h, int r, int g, int b);
 
 /**
@@ -823,28 +823,28 @@ void GsSetDispEnv_DMA(GsDispEnv *dispenv);
 
 
 /* If this flag is set, pixels drawn have MSB set */
-#define MASK_SET		1	
+#define MASK_SET		1
 /* If this flag is set, pixels aren't drawn over pixels with MSB set */
 #define MASK_IGNORE		2
- 
+
  /**
  * Sets masking settings
  * @param flag Bitwise flags
  */
- 
+
 void GsSetMasking(unsigned char flag);
 
 /**
  * Return pointer position in linked list
  * @return Pointer position in linked list
  */
- 
+
 unsigned int GsListPos(void);
 
 /**
  * Three functions which send data to the control port and to the data port
  */
- 
+
 void gpu_ctrl(unsigned int command, unsigned int param);
 void gpu_data(unsigned int data);
 void gpu_data_ctrl(unsigned int command, unsigned int param);
@@ -866,7 +866,7 @@ void GsUploadImage(GsImage *image);
  * this function does not need a pointer to a GsSprite as it only
  * uploads CLUT data into VRAM.
  */
- 
+
 void GsUploadCLUT(GsImage *image);
 
 /**
@@ -874,7 +874,7 @@ void GsUploadCLUT(GsImage *image);
  * by a GsImage structure, then optionally uploads data to video memory.
  * Sprite coordinates are set to 0.
  */
- 
+
 int GsSpriteFromImage(GsSprite *sprite, GsImage *image, int do_upload);
 
 /**
@@ -894,14 +894,14 @@ int GsIsWorking(void); // Alias of GsIsDrawing()
 /**
  * Clear Video RAM
  */
- 
+
 void GsClearMem(void);
 
 /**
  * Loads the built-in 8x8 font in Video RAM at the specified coordinates
  *
  *
- * Specifying cx and cy as -1 will not load the black&white CLUT to 
+ * Specifying cx and cy as -1 will not load the black&white CLUT to
  * video memory. Use GsSetFont() to specify clut x and clut y in that case.
  *
  * The font occupies a space of 16x128 pixels in 16-bit mode,
@@ -911,7 +911,7 @@ void GsClearMem(void);
  * @param cx X coordinate of black/white CLUT in framebuffer
  * @param cy Y coordinate of black/white CLUT in framebuffer
  */
- 
+
 void GsLoadFont(int fb_x, int fb_y, int cx, int cy);
 
 /**
@@ -940,7 +940,7 @@ unsigned int GsVPrintFont(int x, int y, const char*fmt, va_list ap);
 /**
  * Change font coordinates without reloading it
  */
- 
+
 void GsSetFont(int fb_x, int fb_y, int cx, int cy);
 
 /**
@@ -959,7 +959,7 @@ void GsSetFont(int fb_x, int fb_y, int cx, int cy);
  * PRFONT_WRAP can't coexist with PRFONT_CENTER or PRFONT_RIGHT
  * PRFONT_CENTER and PRFONT_RIGHT are justifying attributes and as such
  * they are mutually exclusive - they cannot coexist with each other.
- * Specifying both will give priority to PRFONT_CENTER.	
+ * Specifying both will give priority to PRFONT_CENTER.
  *
  * Attribute list:
  *
@@ -1004,7 +1004,7 @@ void GsSetDispEnvSimple(int x, int y);
 enum psx_gpu_vmodes
 {
 	/** NTSC video mode, 60Hz */
-	VMODE_NTSC, 
+	VMODE_NTSC,
 	/** PAL video mode, 50Hz */
 	VMODE_PAL
 };
@@ -1066,13 +1066,13 @@ void GsSortCls(int r, int g, int b);
 
 /**
   @attention Macros by their definition do not like being passed invalid values.
-*/  
+*/
 
 /**
  * Macro to get a texture page number from a coordinate in VRAM
  * @param x X coordinate (0-1023)
  * @param y Y coordinate (0-511)
- */ 
+ */
 
 #define gs_get_tpage_num(x,y)		((x/64)+((y/256)*16))
 
@@ -1146,7 +1146,7 @@ void GsSortGPolyLine(GsGPolyLine *line);
 /**
  * Experimental!
  * @param drawenv Pointer to drawing struct
- * 
+ *
  */
 void GsSetDrawEnv_DMA(GsDrawEnv* drawenv);
 
