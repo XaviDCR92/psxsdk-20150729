@@ -1063,21 +1063,26 @@ int GsSpriteFromImage(GsSprite *sprite, GsImage *image, int do_upload)
 
 	switch(image->pmode)
 	{
-		case 0:
-			sprite->w = image->w * 4;
-		break;
-		case 1:
-			sprite->w = image->w * 2;
-		break;
-		case 2:
-			sprite->w = image->w;
-		break;
-		case 3:
-			sprite->w = image->w + (image->w / 2);
-		break;
+	    case 0:
+		sprite->w = image->w * 4;
+	    break;
+	    case 1:
+		sprite->w = image->w * 2;
+	    break;
+	    case 2:
+		sprite->w = image->w;
+	    break;
+	    case 3:
+		sprite->w = image->w + (image->w / 2);
+	    break;
 	}
 
 	sprite->h = image->h;
+
+	// Set default (MX, MY) rotation points.
+	sprite->mx = sprite->w >> 1;
+	sprite->my = sprite->h >> 1;
+
 	sprite->attribute = COLORMODE(image->pmode);
 	sprite->r = sprite->g = sprite->b = NORMAL_LUMINANCE;
 
