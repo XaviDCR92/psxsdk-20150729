@@ -41,7 +41,7 @@ unsigned int fmode_to_desmode(const char *fmode)
 {
 	char rmode[16];
 	int x, y;
-	
+
 	y = 0;
 
 	for(x=0;x<15;x++)
@@ -54,36 +54,31 @@ unsigned int fmode_to_desmode(const char *fmode)
 				rmode[y++] = fmode[x];
 		}
 	}
-	
+
 	rmode[y] = 0;
-	
+
 	if(strcmp(rmode, "r") == 0)
 	{
 		return O_RDONLY;
 	}
 	else if(strcmp(rmode, "r+") == 0)
 	{
-		dprintf("Open for reading and writing.\n");
 		return O_RDWR;
 	}
 	else if(strcmp(rmode, "w") == 0)
 	{
-		dprintf("Open for writing.\n");
 		return O_WRONLY | O_CREAT | O_TRUNC;
 	}
 	else if(strcmp(rmode, "w+") == 0)
 	{
-		dprintf("Open for writing. Truncate to zero or create file.\n");
 		return O_RDWR | O_CREAT | O_TRUNC;
 	}
 	else if(strcmp(rmode, "a") == 0)
 	{
-		dprintf("Append; open for writing. Create file if it doesn't exist.\n");
 		return O_WRONLY | O_APPEND;
 	}
 	else if(strcmp(rmode, "a+") == 0)
 	{
-		dprintf("Append; open for reading and writing. Create file if it doesn't exist.\n");
 		return O_RDWR | O_APPEND | O_CREAT;
 	}
 	else
@@ -97,7 +92,7 @@ FILE *fdopen(int fildes, const char *mode)
 // Adjust for malloc
 	int x;
 
-// Find a free file structure	
+// Find a free file structure
 	for(x = 0; x < 256; x++)
 	{
 		if(file_structs[x].used == 0)
@@ -108,10 +103,10 @@ FILE *fdopen(int fildes, const char *mode)
 	}
 
 // If we found no free file structure, return NULL pointer
-	
+
 	if(x == 256)
 		return NULL;
-		
+
 
 	file_structs[x].fildes = fildes;
 	file_structs[x].pos = lseek(fildes, 0, SEEK_CUR);
@@ -125,9 +120,7 @@ FILE *fopen(char *path, const char *mode)
 	int fd;
 	FILE *f;
 	char *s = NULL;
-	
-	dprintf("fopen()\n");
-	
+
 	if(strncmp(path, "cdromL:", 7) == 0)
 	{
 		//printf("strncmp=%d\n", strncmp(path, "cdromL:", 7) );
@@ -148,22 +141,22 @@ FILE *fopen(char *path, const char *mode)
 		if(s!=NULL)free(s);
 		return NULL;
 	}
-		
+
 	f = fdopen(fd, mode);
-	
+
 	if(f == NULL)
 	{
 		if(s!=NULL)free(s);
 		return NULL;
 	}
-	
+
 	f->dev = FDEV_UNKNOWN;
-	
+
 	if(strncmp(path, "cdrom", 5) == 0 || strncmp(path, "cdromL", 6) == 0)
 		f->dev = FDEV_CDROM;
 	else if(strncmp(path, "bu", 2) == 0)
 		f->dev = FDEV_MEMCARD;
-	
+
 	if(s!=NULL)
 	{
 		f->size = get_real_file_size(s);
@@ -171,9 +164,7 @@ FILE *fopen(char *path, const char *mode)
 	}
 	else
 		f->size = get_real_file_size(path);
-		
-	dprintf("Finished fopen()\n");
-		
+
 	return f;
 }
 
@@ -188,7 +179,7 @@ int fclose(FILE *stream)
  * fread doesn't require reads to be carried in block unit
  * Notice that however seeks on the CD drive will be very slow - so avoid using non block units
  *
- * This is done to make programming and porting easier 
+ * This is done to make programming and porting easier
  */
 
 int fread(void *ptr, int size, int nmemb, FILE *f)
@@ -196,10 +187,10 @@ int fread(void *ptr, int size, int nmemb, FILE *f)
 	int rsize = size * nmemb;
 	int csize = rsize;
 	int max;
-	int nsect = (f->pos + rsize) >> 11; 
+	int nsect = (f->pos + rsize) >> 11;
 	nsect -= f->pos >> 11;
 	nsect++;
-	
+
 	//printf("f->dev = %d, f->pos = %d, rsize = %d\n", f->dev, f->pos, rsize);
 
 	if(f->dev == FDEV_CDROM)
@@ -207,70 +198,70 @@ int fread(void *ptr, int size, int nmemb, FILE *f)
 		// First sector
 		lseek(f->fildes, f->pos & (~0x7ff), SEEK_SET);
 		read(f->fildes, onesec_buf, 2048);
-		
+
 		max = 2048 - (f->pos & 2047);
-		
+
 		//printf("ptr(FIRST) = %d, %x\n", ptr, ptr);
 		dprintf("rsize = %d\n", rsize);
-		
+
 		memcpy(ptr, onesec_buf + (f->pos & 2047), (rsize > max) ? max : rsize);
-		
+
 		// Middle sector
 		ptr += max;
-		
+
 		//printf("ptr(MIDDLEsex) = %d, %x\n", ptr, ptr);
 		nsect--;
 		csize -= max;
-		
+
 		if(nsect > 1)
 		{
 			//lseek(f->fildes, (f->pos & (~0x7ff)) + 2048, SEEK_SET);
 
 //#warning "Check correctness of this calculation."
-		
+
 			/*if(rsize & 2047)
 				sect_num = (rsize|2047)+1;
 			else
 				sect_num = rsize;
-				
+
 			sect_num -= 4096;*/
-			
+
 			//printf("read_middle=%d, sect_num = %d\n", read(f->fildes, ptr, sect_num), sect_num);
-			
+
 			read(f->fildes, ptr, (nsect - 1) * 2048);
-			
+
 			ptr += (nsect - 1) * 2048;
 			csize -= (nsect - 1) * 2048;
 			nsect = 1;
 		}
-		
+
 		//printf("ptr(LAST) = %d, %x\n", ptr, ptr);
-		
+
 		if(nsect == 1)
 		{
 			// Last sector
 			read(f->fildes, onesec_buf, 2048);
-		
+
 			memcpy(ptr, onesec_buf, csize);
 		}
-	}	
+	}
 
-	f->pos+= rsize;	
+	f->pos+= rsize;
 	return rsize;
 }
 
 int fgetc(FILE *f)
 {
 	unsigned char c;
-		
+
 	if(f->pos >= f->size)
 		return EOF;
-	
+
 	fread(&c, sizeof(char), 1, f);
-		
+
 	return (int)c;
 }
-	
+
 int ftell(FILE *f)
 {
 	return f->pos;
@@ -293,7 +284,7 @@ int fseek(FILE *f, int offset, int whence)
 			f->pos = whence + offset;
 		break;
 	}
-	
+
 	return 0;
 }
 
@@ -431,7 +422,7 @@ int libc_get_transtbl_fname(char *tofind, char *outstr, int outl)
 				for(; tofind[tfp] == '\\' || tofind[tfp] == '/'; tfp++);
 
 				otfp = tfp;
-	
+
 				for(y = otfp; y < l; y++)
 				{
 					if(tofind[y] == '\0' || tofind[y] == '\\' || tofind[y] == '/')
@@ -439,7 +430,7 @@ int libc_get_transtbl_fname(char *tofind, char *outstr, int outl)
 				}
 
 				tfp = y;
-	
+
 				strcat(rootpath, orgname);
 				strcat(rootpath, "\\");
 
@@ -464,7 +455,7 @@ int libc_get_transtbl_fname(char *tofind, char *outstr, int outl)
 				fseek(f, 0, SEEK_SET);
 				fread(transtbl, 1, s, f);
 				fclose(f);
-				
+
 				x = 0;
 			}
 		}
@@ -542,11 +533,11 @@ int sio_putchar(int c)
 {
 	if(c == '\n' && __sio_cr_mapped)
 		sio_putchar('\r');
-	
+
 	while(!SIOCheckOutBuffer());
-	
+
 	SIOSendByte(c);
-	
+
 	return c;
 }
 
@@ -554,9 +545,9 @@ int sio_puts(const char *str)
 {
 	while(*str)
 		sio_putchar(*(str++));
-	
+
 	sio_putchar('\n');
-	
+
 	return 1;
 }
 
@@ -574,7 +565,7 @@ int putchar(int c)
 			return sio_putchar(c);
 		break;
 	}
-	
+
 	return -1;
 }
 
@@ -589,6 +580,6 @@ int puts(const char *str)
 			return sio_puts(str);
 		break;
 	}
-	
+
 	return -1;
 }

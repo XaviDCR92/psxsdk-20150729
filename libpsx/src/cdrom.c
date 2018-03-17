@@ -27,56 +27,56 @@ unsigned int cdrom_queue_buf[4] = {0x0, /* Will contain next interrupt handler i
 
 static const unsigned char cdrom_command_type[0x1F] = // 0 = single int, 1 = double int, 2,3,... = others
 {
-	0, // Sync 0
-	0, // GetStat/Nop 1
-	0, // Setloc 2
-	0, // Play 3
-	0, // Forward 4
-	0, // Backward 5
-	0, // ReadN 6
-	0, // Standby 7
-	0, // Stop 8
-	1, // Pause 9
-	1, // Init A
-	0, // Mute B
-	0, // Demute C
-	0, // Setfilter D
-	0, // Setmode E
-	0, // Getmode F
-	0, // GetlocL 10
-	0, // GetlocP 11
-	0xFF, // ??? 12
-	0, // GetTN 13
-	0, // GetTD 14
-	1, // SeekL 15
-	1, // SeekP 16
-	0xFF, // ??? 17
-	0xFF, // ??? 18
-	0, // Test 19
-	1, // ID 1A
-	0, // ReadS 1B
-	0, // Reset 1C
-	0xFF, // ??? 1D
-	1, // ReadToc 1E
+	[CdlSync]		= 0,
+	[CdlNop]		= 0,
+	[CdlSetloc]		= 0,
+	[CdlPlay]		= 0,
+	[CdlForward]	= 0,
+	[CdlBackward]	= 0,
+	[CdlReadN]		= 0,
+	[CdlStandby]	= 0,
+	[CdlStop]		= 0,
+	[CdlPause]		= 1,
+	[CdlInit]		= 1,
+	[CdlMute]		= 0,
+	[CdlDemute]		= 0,
+	[CdlSetfilter]	= 0,
+	[CdlSetmode]	= 0,
+	[CdlSetparam]	= 0,
+	[CdlGetlocL]	= 0,
+	[CdlGetlocP]	= 0,
+	[CdlCmd18]		= 0xFF,
+	[CdlGetTN]		= 0,
+	[CdlGetTD]		= 0,
+	[CdlSeekL]		= 1,
+	[CdlSeekP]		= 1,
+	[CdlCmd23]		= 0xFF,
+	[CdlCmd24]		= 0xFF,
+	[CdlTest]		= 0,
+	[CdlID]			= 1,
+	[CdlReadS]		= 0,
+	[CdlReset]		= 0,
+	[CdlCmd29]		= 0xFF,
+	[CdlReadTOC]	= 1,
 };
-				   
+
 void CdSendCommand(int cmd, int num, ...)
 {
 	int x;
 	va_list ap;
 	va_start(ap, num);
 
-// Wait for command execution to end	
+// Wait for command execution to end
 //	while(CDREG(0) & 128);
 
 // Flush old interrupts
 // If this is not done, some events (like the opening of the shell) will hang the CD controller.
-	
+
 	CDREG(0) = 1;
 	CDREG(3) = 7;
 
 // Send parameters
-	
+
 	CDREG(0) = 0;
 
 	while(num)
@@ -85,29 +85,31 @@ void CdSendCommand(int cmd, int num, ...)
 		num--;
 	}
 
-// Send command	
-	
+// Send command
+
 	CDREG(0) = 0;
 	CDREG(1) = cmd;
-	
+
 // Depending on the number of INTs we expect for a command,
 // we wait for an INT to occur, we store the response data returned,
 // and we flush the INT.
-	for(x = 0; x < (cdrom_command_type[cmd] + 1); x++)
+	for(x = 0; x <= cdrom_command_type[cmd]; x++)
 	{
 		CDREG(0) = 1;
 		// PROBLEMATIC INSTRUCTION - CHECK!
-		while((CDREG(3) & 7) == 0);
-		
+		//~ while((CDREG(3) & 7) == 0);
+
 		cdrom_command_stat[x] = CDREG(1);
-		
+
+		printf("cdrom_command_stat[%d] = 0x%02X\n", x, cdrom_command_stat[x]);
+
 		CDREG(0) = 1;
 		CDREG(3) = 7;
 	}
 
 // Store ID number of last executed command (this)
 	cdrom_last_command = cmd;
-	
+
 	va_end(ap);
 }
 
@@ -116,7 +118,7 @@ int CdReadResults(unsigned char *out, int max)
 	int x;
 	unsigned char *outo = out;
 	unsigned char b;
-	
+
 	for(x = 0; x < (cdrom_command_type[cdrom_last_command] + 1); x++)
 	{
 		if(max > 0)
@@ -127,7 +129,7 @@ int CdReadResults(unsigned char *out, int max)
 	}
 
 	CDREG(0) = 1;
-	
+
 	while(CDREG(0) & 0x20)
 	{
 		b = CDREG(1);
@@ -139,7 +141,7 @@ int CdReadResults(unsigned char *out, int max)
 	}
 
 	return (out-outo);
-}	
+}
 
 void _internal_cdromlib_callback()
 {
@@ -151,16 +153,16 @@ void _internal_cdromlib_callback()
 
 /*		int x;
 
-	
+
 
 	unsigned char i;
 
-	
+
 	if(cdrom_command_done)
 		return;
 
 	for(x = 0; x < 100; x++); // Waste time
-	
+
 	CDREG(0) = 1;
 	i=CDREG(3);
 
@@ -169,7 +171,7 @@ void _internal_cdromlib_callback()
 
 	//printf("i&0xf = %x\n", i&0xf);
 //	printf("cdrom_direct_cmd = %x\n", cdrom_direct_cmd);
-	
+
 	switch(kind[cdrom_direct_cmd])
 	{
 		case 0:
@@ -191,12 +193,12 @@ void _internal_cdromlib_callback()
 	cdrom_command_stat[0] = i;
 
 	for(x = 0; x < 100; x++); // Waste time
-	
+
 	CDREG(0) = 1;
 	CDREG(3) = 7;
 	i = CDREG(1);
 	cdrom_command_stat[1] = i;
-	
+
 	//printf("cdrom_command_done = %d\n", cdrom_command_done);*/
 }
 
@@ -205,17 +207,17 @@ void _internal_cdromlib_init()
 	printf("Starting CDROMlib...\n");
 
 	EnterCriticalSection(); // Disable IRQs
-	
+
 	SysEnqIntRP(0, cdrom_queue_buf);
-	
+
 	IMASK|=4;
-	
+
 	cdrom_handler_callback =  _internal_cdromlib_callback;
-	
+
 	ExitCriticalSection(); // Enable IRQs
 }
 
-int CdGetStatus()
+int CdGetStatus(void)
 {
 	unsigned char out;
 
@@ -228,8 +230,8 @@ int CdGetStatus()
 int CdPlayTrack(unsigned int track)
 {
 	//while(CdGetStatus() & CDSTATUS_SEEK);
-	CdSendCommand(CdlSetmode, 1, 0x20);
-	CdSendCommand(CdlPlay, 1, ((track/10)<<4)|(track%10));
+	CdSendCommand(CdlSetmode, 1, 0x97);
+	CdSendCommand(CdlPlay, 1, ((track / 10) << 4) | (track % 10));
 
 	return 1;
 }
@@ -238,9 +240,9 @@ unsigned char CdRamRead(unsigned short addr)
 {
 	unsigned char b;
 	addr &= 0x3ff;
-	
+
 	CdSendCommand(0x19, 0x60, addr&0xff, addr >> 8);
 	CdReadResults(&b, 1);
-	
+
 	return b;
 }

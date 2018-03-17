@@ -467,8 +467,6 @@ void GsSortSimpleSprite(GsSprite *sprite)
 
 	md = setup_attribs(sprite->tpage, sprite->attribute, &pkt);
 
-    dprintf("sprite->r = %d\n", sprite->r);
-
 	linked_list[linked_list_pos++] = 0x05000000;
 	linked_list[linked_list_pos++] = md;
 	linked_list[linked_list_pos++] = (pkt<<24)|(sprite->b<<16)|(sprite->g<<8)|sprite->r;
@@ -1047,7 +1045,7 @@ int GsSpriteFromImage(GsSprite *sprite, GsImage *image, int do_upload)
 		GsUploadImage(image);
     }
 
-	bzero(sprite, sizeof(GsSprite));
+	bzero(sprite, sizeof (GsSprite));
 
 	sprite->tpage = (image->x / 64) + ((image->y/256)*16);
 	sprite->u = image->x & 0x3f;
