@@ -31,12 +31,10 @@ unsigned int _EXC_dma_handler_set;
 
 volatile int __psxsdk_gpu_dma_finished;
 
-extern void _internal_cdromlib_callback();
-
 void SetCDROMHandler(void)
 {
-	_EXC_cdrom_handler_set = 1;
-	_EXC_cdrom_handler = _internal_cdromlib_callback;
+	//~ _EXC_cdrom_handler_set = 1;
+	//~ _EXC_cdrom_handler = _internal_cdromlib_callback;
 	IMASK = /* VBLANK */ 1 | /* CDROM */ 4 | /* DMA */8;
 	printf("SetCDROMHandler\n");
 }
@@ -160,7 +158,7 @@ extern void _internal_cdromlib_callback();
  void __PSX_Init_NoBios()
  {
 	_EXC_vblank_handler = NULL;
-	_EXC_cdrom_handler = _internal_cdromlib_callback;
+	//~ _EXC_cdrom_handler = _internal_cdromlib_callback;
 	_EXC_dma_handler = __psxsdk_dma_handler;
 	_EXC_sio_handler = NULL;
 

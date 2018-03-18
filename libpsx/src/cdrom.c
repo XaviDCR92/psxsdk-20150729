@@ -10,14 +10,17 @@
 #define IMASK		*((volatile unsigned int*)0x1f801074)
 #define IPENDING	*((volatile unsigned int*)0x1f801070)
 
+extern int *cdrom_handler(void);
 void _internal_cdrom_handler();
 void (*cdrom_handler_callback)();
 volatile int cdrom_command_direct = 0;
 volatile int cdrom_command_done = 0;
 volatile int cdrom_direct_cmd;
 volatile int cdrom_command_dpos = 0;
+volatile int cdrom_handler_event_id;
 volatile unsigned char cdrom_last_command;
 volatile unsigned char cdrom_command_stat[2];
+volatile bool want_feedback;
 
 unsigned int cdrom_queue_buf[4] = {0x0, /* Will contain next interrupt handler in queue */
                                     0x0, /* func1 */
@@ -25,39 +28,74 @@ unsigned int cdrom_queue_buf[4] = {0x0, /* Will contain next interrupt handler i
 				    0x0, /* pad */
 				   };
 
-static const unsigned char cdrom_command_type[0x1F] = // 0 = single int, 1 = double int, 2,3,... = others
+static const char* const cdrom_command_type_str[MaxCdl] =
 {
-	[CdlSync]		= 0,
-	[CdlNop]		= 0,
-	[CdlSetloc]		= 0,
-	[CdlPlay]		= 0,
-	[CdlForward]	= 0,
-	[CdlBackward]	= 0,
-	[CdlReadN]		= 0,
-	[CdlStandby]	= 0,
-	[CdlStop]		= 0,
-	[CdlPause]		= 1,
-	[CdlInit]		= 1,
-	[CdlMute]		= 0,
-	[CdlDemute]		= 0,
-	[CdlSetfilter]	= 0,
-	[CdlSetmode]	= 0,
-	[CdlSetparam]	= 0,
-	[CdlGetlocL]	= 0,
-	[CdlGetlocP]	= 0,
+	[CdlSync]		= "CdlSync"			,
+	[CdlGetstat]	= "CdlGetstat"		,
+	[CdlSetloc]		= "CdlSetloc"       ,
+	[CdlPlay]		= "CdlPlay"         ,
+	[CdlForward]	= "CdlForward"      ,
+	[CdlBackward]	= "CdlBackward"     ,
+	[CdlReadN]		= "CdlReadN"        ,
+	[CdlStandby]	= "CdlStandby"      ,
+	[CdlStop]		= "CdlStop"         ,
+	[CdlPause]		= "CdlPause"        ,
+	[CdlInit]		= "CdlInit"         ,
+	[CdlMute]		= "CdlMute"         ,
+	[CdlDemute]		= "CdlDemute"       ,
+	[CdlSetfilter]	= "CdlSetfilte"     ,
+	[CdlSetmode]	= "CdlSetmode"      ,
+	[CdlSetparam]	= "CdlSetparam"     ,
+	[CdlGetlocL]	= "CdlGetlocL"      ,
+	[CdlGetlocP]	= "CdlGetlocP"      ,
+	[CdlCmd18]		= "CdlCmd18"        ,
+	[CdlGetTN]		= "CdlGetTN"        ,
+	[CdlGetTD]		= "CdlGetTD"        ,
+	[CdlSeekL]		= "CdlSeekL"        ,
+	[CdlSeekP]		= "CdlSeekP"        ,
+	[CdlCmd23]		= "CdlCmd23"        ,
+	[CdlCmd24]		= "CdlCmd24"        ,
+	[CdlTest]		= "CdlTest"         ,
+	[CdlID]			= "CdlID"           ,
+	[CdlReadS]		= "CdlReadS"        ,
+	[CdlReset]		= "CdlReset"        ,
+	[CdlCmd29]		= "CdlCmd29"        ,
+	[CdlReadTOC]	= "CdlReadTOC"      ,
+};
+
+static const unsigned char cdrom_command_type[MaxCdl] = // 0 = single int, 1 = double int, 2,3,... = others
+{
+	[CdlSync]		= 1,
+	[CdlGetstat]	= 1,
+	[CdlSetloc]		= 1,
+	[CdlPlay]		= 1,
+	[CdlForward]	= 1,
+	[CdlBackward]	= 1,
+	[CdlReadN]		= 1,
+	[CdlStandby]	= 1,
+	[CdlStop]		= 1,
+	[CdlPause]		= 2,
+	[CdlInit]		= 2,
+	[CdlMute]		= 1,
+	[CdlDemute]		= 1,
+	[CdlSetfilter]	= 1,
+	[CdlSetmode]	= 1,
+	[CdlSetparam]	= 1,
+	[CdlGetlocL]	= 1,
+	[CdlGetlocP]	= 1,
 	[CdlCmd18]		= 0xFF,
-	[CdlGetTN]		= 0,
-	[CdlGetTD]		= 0,
-	[CdlSeekL]		= 1,
-	[CdlSeekP]		= 1,
+	[CdlGetTN]		= 1,
+	[CdlGetTD]		= 1,
+	[CdlSeekL]		= 2,
+	[CdlSeekP]		= 2,
 	[CdlCmd23]		= 0xFF,
 	[CdlCmd24]		= 0xFF,
-	[CdlTest]		= 0,
-	[CdlID]			= 1,
-	[CdlReadS]		= 0,
-	[CdlReset]		= 0,
+	[CdlTest]		= 1,
+	[CdlID]			= 2,
+	[CdlReadS]		= 1,
+	[CdlReset]		= 1,
 	[CdlCmd29]		= 0xFF,
-	[CdlReadTOC]	= 1,
+	[CdlReadTOC]	= 2,
 };
 
 void CdSendCommand(int cmd, int num, ...)
@@ -88,20 +126,25 @@ void CdSendCommand(int cmd, int num, ...)
 // Send command
 
 	CDREG(0) = 0;
+
+	dprintf("Sending raw CD-ROM command 0x%02X (%s).\n", cmd, cdrom_command_type_str[cmd]);
+
 	CDREG(1) = cmd;
+
+	dprintf("Raw CD-ROM command 0x%02X (%s) expects %d parameters.\n", cmd, cdrom_command_type_str[cmd], cdrom_command_type[cmd]);
 
 // Depending on the number of INTs we expect for a command,
 // we wait for an INT to occur, we store the response data returned,
 // and we flush the INT.
-	for(x = 0; x <= cdrom_command_type[cmd]; x++)
+	for(x = 0; x < cdrom_command_type[cmd]; x++)
 	{
 		CDREG(0) = 1;
 		// PROBLEMATIC INSTRUCTION - CHECK!
-		//~ while((CDREG(3) & 7) == 0);
+		while(CDREG(0) & (1 << 7));
 
 		cdrom_command_stat[x] = CDREG(1);
 
-		printf("cdrom_command_stat[%d] = 0x%02X\n", x, cdrom_command_stat[x]);
+		dprintf("cdrom_command_stat[%d] = 0x%02X\n", x, cdrom_command_stat[x]);
 
 		CDREG(0) = 1;
 		CDREG(3) = 7;
@@ -119,7 +162,7 @@ int CdReadResults(unsigned char *out, int max)
 	unsigned char *outo = out;
 	unsigned char b;
 
-	for(x = 0; x < (cdrom_command_type[cdrom_last_command] + 1); x++)
+	for(x = 0; x < cdrom_command_type[cdrom_last_command]; x++)
 	{
 		if(max > 0)
 		{
@@ -140,14 +183,17 @@ int CdReadResults(unsigned char *out, int max)
 		}
 	}
 
-	return (out-outo);
+	return (out - outo);
 }
 
-void _internal_cdromlib_callback()
+void _internal_cdrom_handler()
 {
-	printf("Call from CD-ROM interrupt!\n");
-	printf("Status: %d\n", IPENDING);
-	IPENDING &= ~(1<<2);
+	if (want_feedback != false)
+	{
+		dprintf("INT3?\n");
+
+		want_feedback = false;
+	}
 	// 0 = ACKNOWLEDGE (0x*2)
 	// 1 = ACKNOWLEDGE (0x*2), COMPLETE (0x*3)
 
@@ -210,9 +256,14 @@ void _internal_cdromlib_init()
 
 	SysEnqIntRP(0, cdrom_queue_buf);
 
-	IMASK|=4;
+	IMASK |= 1 << 2;
 
-	cdrom_handler_callback =  _internal_cdromlib_callback;
+	cdrom_handler_callback =  _internal_cdrom_handler;
+
+	cdrom_handler_event_id = OpenEvent(0xF0000003, 2, 0x1000, cdrom_handler);
+	EnableEvent(cdrom_handler_event_id);
+
+	dprintf("cdrom_handler_event_id = 0x%08X\n", cdrom_handler_event_id);
 
 	ExitCriticalSection(); // Enable IRQs
 }
@@ -229,9 +280,32 @@ int CdGetStatus(void)
 
 int CdPlayTrack(unsigned int track)
 {
-	//while(CdGetStatus() & CDSTATUS_SEEK);
-	CdSendCommand(CdlSetmode, 1, 0x97);
+	enum
+	{
+		//~ 7   Speed       (0=Normal speed, 1=Double speed)
+		//~ 6   XA-ADPCM    (0=Off, 1=Send XA-ADPCM sectors to SPU Audio Input)
+		//~ 5   Sector Size (0=800h=DataOnly, 1=924h=WholeSectorExceptSyncBytes)
+		//~ 4   Ignore Bit  (0=Normal, 1=Ignore Sector Size and Setloc position)
+		//~ 3   XA-Filter   (0=Off, 1=Process only XA-ADPCM sectors that match Setfilter)
+		//~ 2   Report      (0=Off, 1=Enable Report-Interrupts for Audio Play)
+		//~ 1   AutoPause   (0=Off, 1=Auto Pause upon End of Track) ;for Audio Play
+		//~ 0   CDDA        (0=Off, 1=Allow to Read CD-DA Sectors; ignore missing EDC)
+
+		CDDA			= 1 << 0,
+		AUTOPAUSE		= 1 << 1,
+		IGNORE_BIT		= 1 << 4,
+		DOUBLE_SPEED	= 1 << 7,
+	};
+
+	while(CdGetStatus() & CDSTATUS_SEEK);
+
+	CdSendCommand(CdlSetmode, 1, (unsigned int)(CDDA | AUTOPAUSE | IGNORE_BIT | DOUBLE_SPEED));
 	CdSendCommand(CdlPlay, 1, ((track / 10) << 4) | (track % 10));
+
+	while (!(CdGetStatus() & CDSTATUS_PLAY))
+	{
+		want_feedback = true;
+	}
 
 	return 1;
 }

@@ -117,6 +117,7 @@ enum psx_rcnt_specs
 	RCntCNT2		= 0xf2000002,
 	/** VSync (VBlank) */
 	RCntCNT3		= 0xf2000003,
+	VSync			= RCntCNT3
 };
 
 /**

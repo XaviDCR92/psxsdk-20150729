@@ -425,9 +425,9 @@ void SetVBlankHandler(void (*callback)())
 
 	EnterCriticalSection();
 
-	IMASK|=1;
+	IMASK |= 1;
 
-	vblank_handler_event_id = OpenEvent(RCntCNT3, 2, 0x1000, vblank_handler);
+	vblank_handler_event_id = OpenEvent(VSync, 2, 0x1000, vblank_handler);
 	EnableEvent(vblank_handler_event_id);
 
 	vblank_handler_callback = callback;
