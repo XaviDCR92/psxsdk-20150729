@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 const unsigned char psexe_magic[8] = {'P','S','-','X',' ','E','X','E'};
 const char *psexe_marker_usa = "Sony Computer Entertainment Inc. for North America area";

@@ -12,8 +12,11 @@ OBJS =	$(patsubst src/%.c, out/%.o, $(wildcard src/*.c)) \
 
 all: libpsx.a start.o
 
-libpsx.a: $(OBJS)
+libpsx.a: dirs $(OBJS)
 	$(AR) r libpsx.a $(OBJS)
+
+dirs:
+	mkdir -p out/ out/libc/ out/runexe/
 
 out/%.o: src/%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
