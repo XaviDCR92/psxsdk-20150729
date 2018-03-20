@@ -1,10 +1,17 @@
+.extern cdrom_handler_callback
 .global _internal_cdrom_handler
 .set noat
 
-
+############################
 _internal_cdrom_handler:
-	addi $sp, -112
+	addi $sp, -120
+.set noat
 	sw $at, 0($sp)
+	mfhi $at
+	sw $at, 112($sp)
+	mflo $at
+	sw $at, 116($sp)
+.set at
 	sw $v0, 4($sp)
 	sw $v1, 8($sp)
 	sw $a0, 12($sp)
@@ -32,9 +39,9 @@ _internal_cdrom_handler:
 	sw $gp, 100($sp)
 	sw $s8, 104($sp)
 	sw $ra, 108($sp)
-	
-# Do not run code if cdrom interrupt is not enabled	
-	
+
+# Do not run code if cdrom interrupt is not enabled
+
 	li $t0, 0x1f801074
 	lw $t1, 0($t0)
 	andi $t1, $t1, 4
@@ -42,14 +49,14 @@ _internal_cdrom_handler:
 	nop
 
 # Do not run code if cdrom interrupt is not pending
-	
+
 	li $t0, 0x1f801070
 	lw $t1, 0($t0)
 	andi $t1, $t1, 4
 	beq $t1, $zero, cdrom_handler_end
 	nop
 
-# If the CDROM command isn't direct 
+# If the CDROM command isn't direct
 # (direct = sent by us and not by the BIOS' ISO9660 routines)
 # exit and let the BIOS do its work.
 
@@ -59,24 +66,35 @@ cdrom_check_direct_cmd:
 	beq $t1, $zero, cdrom_handler_end
 	nop
 
-cdrom_fire_user_handler:	
+cdrom_fire_user_handler:
 	la $t0, cdrom_handler_callback
 	lw $t1, 0($t0)
-	
-	jalr $t1
-	nop
 
-# Remove bit for CDROM interrupt (bit 2) from pending interrupts mask.
-	
-cdrom_handler_remove_pending:
-	li $t0, 0x1f801070
+	addiu $sp, $sp, -24
+	#jalr $t1
+	nop
+	addiu $sp, $sp, 24
+
+cdrom_acknowledge_irq:
+	li $t0, 0x1f801070 # IPENDING
+	la $t2, 0x04	# CD-ROM - I_STAT bit 2
+
 	lw $t1, 0($t0)
-	xori $t1, $t1, 4
+	nop
+	nop
+	xor $t1, $t1, $t2 # Acknowledge Root Counter IRQ
 	sw $t1, 0($t0)
 
 cdrom_handler_end:
-
+.set noat
+	lw $at, 112($sp)
+	nop
+	mthi $at
+	lw $at, 116($sp)
+	nop
+	mtlo $at
 	lw $at, 0($sp)
+.set at
 	lw $v0, 4($sp)
 	lw $v1, 8($sp)
 	lw $a0, 12($sp)
@@ -104,6 +122,6 @@ cdrom_handler_end:
 	lw $gp, 100($sp)
 	lw $s8, 104($sp)
 	lw $ra, 108($sp)
-	addi $sp, 112
+	addi $sp, 120
 	jr $ra
 	nop
