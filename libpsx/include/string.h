@@ -14,6 +14,7 @@
 
 #include <strings.h> // for backwards compatibility
 #include <types.h>
+#include <stddef.h>
 
 char *strcat(char *s , const char *append);
 char *strncat(char *s , const char *append, size_t n);

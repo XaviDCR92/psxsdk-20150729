@@ -14,12 +14,12 @@ bios_putchar:
 	li $9, 0x3c
 	j 0xa0
 	nop
-	
+
 bios_puts:
 	li $9, 0x3e
 	j 0xa0
 	nop
-	
+
 printf:
 	la $9, __stdio_direction
 	lw $10, 0($9)
@@ -42,7 +42,7 @@ InitHeap:
 	li $9, 0x39
 	j 0xa0
 	nop
-	
+
 FlushCache:
 	li $9, 0x44
 	j 0xa0
@@ -121,7 +121,7 @@ CloseEvent:
 	li $9, 0x09
 	j 0xb0
 	nop
-	
+
 DisableEvent:
 	li $9, 0x0d
 	j 0xb0
@@ -136,12 +136,12 @@ DeliverEvent:
 	li $9, 0x07
 	j 0xb0
 	nop
-	
+
 WaitEvent:
 	li $9, 0x0a
 	j 0xb0
 	nop
-	
+
 TestEvent:
 	li $9, 0x0b
 	j 0xb0
@@ -163,37 +163,37 @@ open:
 	li $9, 0x32
 	j 0xb0
 	nop
-	
+
 lseek:
 	li $9, 0x33
 	j 0xb0
 	nop
-	
+
 read:
 	li $9, 0x34
 	j 0xb0
 	nop
-	
+
 write:
 	li $9, 0x35
 	j 0xb0
 	nop
-	
+
 close:
 	li $9, 0x36
 	j 0xb0
 	nop
-	
+
 cd:
 	li $9, 0x40
 	j 0xb0
 	nop
-	
+
 firstfile:
 	li $9, 0x42
 	j 0xb0
 	nop
-	
+
 nextfile:
 	li $9, 0x43
 	j 0xb0
@@ -203,19 +203,19 @@ rename:
 	li $9, 0x44
 	j 0xb0
 	nop
-	
+
 remove:
 	li $9, 0x45
 	j 0xb0
 	nop
-	
+
 # Exception / Interrupt functions
 
 .global EnterCriticalSection
 .global ExitCriticalSection
 .global SysEnqIntRP
 .global SysDeqIntRP
-	
+
 EnterCriticalSection:
 	li $a0, 1
 	syscall
@@ -234,12 +234,12 @@ SysEnqIntRP:
 	li $9, 0x02
 	j 0xc0
 	nop
-	
+
 SysDeqIntRP:
 	li $9, 0x03
 	j 0xc0
 	nop
-	
+
 # Filesystem functions
 
 .global _96_init
@@ -250,17 +250,17 @@ _96_init:
 	li $9, 0x71
 	j 0xa0
 	nop
-	
+
 _96_remove:
 	li $9, 0x72
 	j 0xa0
 	nop
-	
+
 _bu_init:
 	li $9, 0x70
 	j 0xa0
 	nop
-	
+
 # Executable loading functions
 
 .global LoadExec
@@ -287,7 +287,7 @@ InitCARD:
 	li $9, 0x4a
 	j 0xb0
 	nop
-	
+
 StartCARD:
 	li $9, 0x4b
 	j 0xb0
@@ -302,12 +302,12 @@ _card_info:
 	li $9, 0xab
 	j 0xa0
 	nop
-	
+
 _card_load:
 	li $9, 0xac
 	j 0xa0
 	nop
-	
+
 _card_auto:
 	li $9, 0xad
 	j 0xa0
@@ -317,7 +317,7 @@ _card_write:
 	li $9, 0x4e
 	j 0xb0
 	nop
-	
+
 _card_read:
 	li $9, 0x4f
 	j 0xb0
@@ -327,7 +327,7 @@ _new_card:
 	li $9, 0x50
 	j 0xb0
 	nop
-	
+
 _card_status:
 	li $9, 0x5c
 	j 0xb0
@@ -348,3 +348,24 @@ BIOSWarmReboot:
 	li $9, 0xa0
 	nop
 	j 0xa0
+
+# Thread functions
+
+.global OpenThread
+.global ChangeThread
+.global GetGP
+
+OpenThread:
+    li $9, 0x0E
+    j 0xb0
+    nop
+
+ChangeThread:
+    li $9, 0x10
+    j 0xb0
+    nop
+
+GetGP:
+    lw $v0, 0($gp)
+    j $ra
+    nop

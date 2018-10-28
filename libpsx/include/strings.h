@@ -1,4 +1,4 @@
-/* 
+/*
  * strings.h
  *
  * PSXSDK
@@ -9,12 +9,13 @@
 
 #include <string.h>
 #include <types.h>
+#include <stddef.h>
 
-#define bcopy(src,dst,len)				memmove(dst,src,len)
-#define bzero(ptr, len)					memset(ptr, 0, len)
-#define bcmp(b1,b2,len)					memcmp(b1,b2,len)
-#define index(s, c)						strchr(s, c)
-#define rindex(s, c)						strrchr(s, c)
+#define bcopy(src,dst,len)              memmove(dst,src,len)
+#define bzero(ptr, len)                 memset(ptr, 0, len)
+#define bcmp(b1,b2,len)                 memcmp(b1,b2,len)
+#define index(s, c)                     strchr(s, c)
+#define rindex(s, c)                        strrchr(s, c)
 
 int ffs(int value);
 char *index(const char *s, int c);
