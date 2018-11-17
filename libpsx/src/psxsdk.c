@@ -10,12 +10,12 @@
 #include <string.h>
 #include "exception.h"
 
-#define IPENDING		*((volatile unsigned int*)0x1f801070)
-#define IMASK			*((volatile unsigned int*)0x1f801074)
-#define RCNT_COUNT(x)	*((volatile unsigned int*)(0x1f801100 + (x<<4)))
-#define RCNT_MODE(x)	*((volatile unsigned int*)(0x1f801104 + (x<<4)))
-#define RCNT_TARGET(x)	*((volatile unsigned int*)(0x1f801108 + (x<<4)))
-#define RCNT_ADDR(x)	(volatile unsigned int)(0xF2000000 | x)
+#define IPENDING        *((volatile unsigned int*)0x1f801070)
+#define IMASK           *((volatile unsigned int*)0x1f801074)
+#define RCNT_COUNT(x)   *((volatile unsigned int*)(0x1f801100 + (x<<4)))
+#define RCNT_MODE(x)    *((volatile unsigned int*)(0x1f801104 + (x<<4)))
+#define RCNT_TARGET(x)  *((volatile unsigned int*)(0x1f801108 + (x<<4)))
+#define RCNT_ADDR(x)    (volatile unsigned int)(0xF2000000 | x)
 
 const char *sysromver_unavail = "System ROM Version Unavailable";
 
@@ -31,9 +31,9 @@ extern int *rcnt_handler();
 
 /*static unsigned int vblank_queue_buf[4] = {0x0, // Will contain next interrupt handler in queue
                                     0x0, // func1
-				    (unsigned int)vblank_handler, // func2
-				    0x0, // pad
-				   };*/
+                    (unsigned int)vblank_handler, // func2
+                    0x0, // pad
+                   };*/
 
 static int vblank_handler_set = 0;
 static unsigned int vblank_handler_event_id = 0;
@@ -47,7 +47,7 @@ void _internal_cdromlib_init(void);
 static unsigned int psxSdkFlags = 0;
 
 static unsigned char *psxBiosState;
-unsigned char psxsdkPadArr[PAD_READ_RAW_SIZE][2];
+unsigned char psxsdkPadArr[PAD_READ_RAW_SIZE][4];
 
 extern void _96_remove(void);
 extern void _96_init(void);
@@ -62,97 +62,97 @@ extern void SetCDROMHandler(void);
 
 void PSX_InitEx(unsigned int flags)
 {
-	if(flags & PSX_INIT_NOBIOS)
-	{
-		printf("Entering No BIOS mode...\n");
+    if(flags & PSX_INIT_NOBIOS)
+    {
+        printf("Entering No BIOS mode...\n");
 
-		__PSX_Init_NoBios();
-		goto _initex_end;
-	}
+        __PSX_Init_NoBios();
+        goto _initex_end;
+    }
 
-	if(flags & PSX_INIT_SAVESTATE)
-	{
+    if(flags & PSX_INIT_SAVESTATE)
+    {
 // Save BIOS state
 // This simply copies the entire section of RAM used by the BIOS
 // in a buffer.
-		EnterCriticalSection();
-		psxBiosState = malloc(0x10000);
-		memcpy(psxBiosState, (void*)0x80000000, 0x10000);
-		ExitCriticalSection();
-	}
+        EnterCriticalSection();
+        psxBiosState = malloc(0x10000);
+        memcpy(psxBiosState, (void*)0x80000000, 0x10000);
+        ExitCriticalSection();
+    }
 
-	/* Reinitialize ISO 9660 filesystem driver */
+    /* Reinitialize ISO 9660 filesystem driver */
 
-	if(flags & PSX_INIT_CD)
-	{
-		EnterCriticalSection();
-		_96_remove();
-		ExitCriticalSection();
+    if(flags & PSX_INIT_CD)
+    {
+        EnterCriticalSection();
+        _96_remove();
+        ExitCriticalSection();
 
-		_96_init();
+        _96_init();
 
-		SetCDROMHandler();
-	}
+        SetCDROMHandler();
+    }
 
 
-	/*This is needed, otherwise PSX will crash when VBlank handler is set*/
-	/*InitCARD(1);
-	StartCARD();
+    /*This is needed, otherwise PSX will crash when VBlank handler is set*/
+    /*InitCARD(1);
+    StartCARD();
         StopCARD();*/
 
-	if(flags & PSX_INIT_CD)
-		_internal_cdromlib_init();
+    if(flags & PSX_INIT_CD)
+        _internal_cdromlib_init();
 
-	printf("PSXSDK testing version !!!\n");
+    printf("PSXSDK testing version !!!\n");
 
-	vblank_handler_set = 0;
+    vblank_handler_set = 0;
 _initex_end:
-	psxSdkFlags = flags;
+    psxSdkFlags = flags;
 }
 
 void PSX_Init(void)
 {
-	PSX_InitEx(PSX_INIT_CD);
+    PSX_InitEx(PSX_INIT_CD);
 }
 
 void PSX_DeInit(void)
 {
-	if(psxSdkFlags & PSX_INIT_CD)
-	{
-		EnterCriticalSection();
-		_96_remove();
-		ExitCriticalSection();
-	}
+    if(psxSdkFlags & PSX_INIT_CD)
+    {
+        EnterCriticalSection();
+        _96_remove();
+        ExitCriticalSection();
+    }
 
-	RemoveVBlankHandler();
+    RemoveVBlankHandler();
 
-	if(psxSdkFlags & PSX_INIT_SAVESTATE)// This must always be the last to be called!
-		PSX_RestoreBiosState();
+    if(psxSdkFlags & PSX_INIT_SAVESTATE)// This must always be the last to be called!
+        PSX_RestoreBiosState();
 }
 
 void PSX_ReadPad(unsigned short *padbuf, unsigned short *padbuf2)
 {
-	int x;
-	unsigned short *padbuf_a[2];
+    int x;
+    unsigned short *padbuf_a[2];
 
 // Now uses low level pad routines...
-	padbuf_a[0] = padbuf;
-	padbuf_a[1] = padbuf2;
+    padbuf_a[0] = padbuf;
+    padbuf_a[1] = padbuf2;
 
-	for(x = 0; x < 2; x++)
-	{
+    for(x = 0; x < 2; x++)
+    {
         unsigned char* arr = psxsdkPadArr[x];
 
-		pad_read_raw(x, arr);
+        pad_read_raw(x, arr);
 
-		if(arr[2] == 0x5a)
-		{
-			*padbuf_a[x] = (arr[3]<<8)|arr[4];
-			*padbuf_a[x] = ~*padbuf_a[x];
-		}
-		else
-			*padbuf_a[x] = 0;
-	}
+        if(arr[2] == 0x5a)
+        {
+            *padbuf_a[x] = (arr[3]<<8)|arr[4];
+            *padbuf_a[x] = ~*padbuf_a[x];
+        }
+        else
+            *padbuf_a[x] = 0;
+    }
 }
 
 void PSX_ReadMouse(unsigned short* dig_pad1, unsigned short* adc_pad1)
@@ -161,10 +161,10 @@ void PSX_ReadMouse(unsigned short* dig_pad1, unsigned short* adc_pad1)
 
     unsigned char pad_cmd[PAD_READ_RAW_SIZE] = {1,0x42,0,0,0,0,0}; // 2 extra bytes than digital pad
 
-	pad_cmd[3] = 0; // Mouse vibration == 0?
-	pad_cmd[4] = 0; // Mouse vibration == 0?
+    pad_cmd[3] = 0; // Mouse vibration == 0?
+    pad_cmd[4] = 0; // Mouse vibration == 0?
 
-	QueryPAD(0, pad_cmd, arr, sizeof(pad_cmd));
+    QueryPAD(0, pad_cmd, arr, sizeof(pad_cmd));
 
     if(arr[2] == 0x5A)
     {
@@ -181,350 +181,353 @@ void PSX_ReadMouse(unsigned short* dig_pad1, unsigned short* adc_pad1)
 
 void PSX_PollPad_Fast(int pad_num, psx_pad_state *pad_state)
 {
-	//Rely on pad_read_raw being called AFTER PSX_ReadPad(),
-	//so that pad_read_raw is only called once.
+    //Rely on pad_read_raw being called AFTER PSX_ReadPad(),
+    //so that pad_read_raw is only called once.
 
-	unsigned char *arr = psxsdkPadArr[pad_num];
+    unsigned char *arr = psxsdkPadArr[pad_num];
 
-	pad_state->status = arr[0];
-	pad_state->id = arr[1];
+    pad_state->status = arr[0];
+    pad_state->id = arr[1];
 
-	pad_state->buttons = (arr[3]<<8)|arr[4];
-	pad_state->buttons = ~pad_state->buttons;
+    pad_state->buttons = (arr[3]<<8)|arr[4];
+    pad_state->buttons = ~pad_state->buttons;
 
-	//dprintf("Pad Status: 0x%.2X\n",pad_state->status);
+    //dprintf("Pad Status: 0x%.2X\n",pad_state->status);
 
-	switch(pad_state->id)
-	{
-		case 0xFF:
-			pad_state->type = PADTYPE_NONE;
-		break;
-		case 0x41:
-			pad_state->type = PADTYPE_NORMALPAD;
-		break;
-		case 0x53:
-			pad_state->type = PADTYPE_ANALOGJOY;
-			pad_state->extra.analogJoy.x[0] = arr[5]-128;
-			pad_state->extra.analogJoy.y[0] = arr[6]-128;
-			pad_state->extra.analogJoy.x[1] = arr[7]-128;
-			pad_state->extra.analogJoy.y[1] = arr[8]-128;
-		break;
-		case 0x73:
-			pad_state->type = PADTYPE_ANALOGPAD;
-			pad_state->extra.analogPad.x[0] = arr[5]-128;
-			pad_state->extra.analogPad.y[0] = arr[6]-128;
-			pad_state->extra.analogPad.x[1] = arr[7]-128;
-			pad_state->extra.analogPad.y[1] = arr[8]-128;
-		break;
-		case 0x23:
-			pad_state->type = PADTYPE_NEGCON;
-			pad_state->extra.negCon.steering = arr[5]-128;
-			pad_state->extra.negCon.one = arr[6];
-			pad_state->extra.negCon.two = arr[7];
-			pad_state->extra.negCon.shoulder = arr[8];
-		break;
-		case 0x31:
-			pad_state->type = PADTYPE_KONAMIGUN;
-		break;
-		case 0x12:
-			pad_state->type = PADTYPE_MOUSE;
-		break;
-		default:
-			pad_state->type = PADTYPE_UNKNOWN;
-	}
+    switch(pad_state->id)
+    {
+        case 0xFF:
+            pad_state->type = PADTYPE_NONE;
+        break;
+        case 0x41:
+            pad_state->type = PADTYPE_NORMALPAD;
+        break;
+        case 0x53:
+            pad_state->type = PADTYPE_ANALOGJOY;
+            pad_state->extra.analogJoy.x[0] = arr[5]-128;
+            pad_state->extra.analogJoy.y[0] = arr[6]-128;
+            pad_state->extra.analogJoy.x[1] = arr[7]-128;
+            pad_state->extra.analogJoy.y[1] = arr[8]-128;
+        break;
+        case 0x73:
+            pad_state->type = PADTYPE_ANALOGPAD;
+            pad_state->extra.analogPad.x[0] = arr[5]-128;
+            pad_state->extra.analogPad.y[0] = arr[6]-128;
+            pad_state->extra.analogPad.x[1] = arr[7]-128;
+            pad_state->extra.analogPad.y[1] = arr[8]-128;
+        break;
+        case 0x23:
+            pad_state->type = PADTYPE_NEGCON;
+            pad_state->extra.negCon.steering = arr[5]-128;
+            pad_state->extra.negCon.one = arr[6];
+            pad_state->extra.negCon.two = arr[7];
+            pad_state->extra.negCon.shoulder = arr[8];
+        break;
+        case 0x31:
+            pad_state->type = PADTYPE_KONAMIGUN;
+        break;
+        case 0x12:
+            pad_state->type = PADTYPE_MOUSE;
+        break;
+        default:
+            pad_state->type = PADTYPE_UNKNOWN;
+    }
 }
 
 void PSX_PollPad(int pad_num)
 {
 
-	pad_read_raw(pad_num, psxsdkPadArr[pad_num]);
+    pad_read_raw(pad_num, psxsdkPadArr[pad_num]);
 
-	//PSX_PollPad_Fast(pad_num,pad_state);
+    //PSX_PollPad_Fast(pad_num,pad_state);
 }
 
 /*int PSX_GetPadType(unsigned int pad_num)
 //{
-	//#warning "Function does not currently work!"
-//	unsigned char arr[16];
+    //#warning "Function does not currently work!"
+//  unsigned char arr[16];
 
-	pad_read_raw(pad_num, arr);
+    pad_read_raw(pad_num, arr);
 
-	switch(arr[1])
-	{
-		case 0xFF:
-			return PADTYPE_NONE;
-		break;
-		case 0x41:
-			return PADTYPE_NORMALPAD;
-		break;
-		case 0x53:
-			return PADTYPE_ANALOGJOY;
-		break;
-		case 0x73:
-			return PADTYPE_ANALOGPAD;
-		break;
-	}
+    switch(arr[1])
+    {
+        case 0xFF:
+            return PADTYPE_NONE;
+        break;
+        case 0x41:
+            return PADTYPE_NORMALPAD;
+        break;
+        case 0x53:
+            return PADTYPE_ANALOGJOY;
+        break;
+        case 0x73:
+            return PADTYPE_ANALOGPAD;
+        break;
+    }
 
-	return PADTYPE_UNKNOWN;
+    return PADTYPE_UNKNOWN;
 }*/
 
 
 void PSX_GetSysInfo(struct psx_info *info)
 {
-	unsigned long i,i2;
+    unsigned long i,i2;
 
-	info->kernel.version = GetKernelRomVersion();
+    info->kernel.version = GetKernelRomVersion();
 
-	i = GetKernelDate();
+    i = GetKernelDate();
 
 /*
  * Convert year from BCD to decimal
  */
 
-	i2 = i >> 16;
+    i2 = i >> 16;
 
-	info->kernel.year = i2 & 0xf;
-	info->kernel.year+= ((i2>>4)&0xf)*10;
-	info->kernel.year+= ((i2>>8)&0xf)*100;
-	info->kernel.year+= ((i2>>12)&0xf)*1000;
+    info->kernel.year = i2 & 0xf;
+    info->kernel.year+= ((i2>>4)&0xf)*10;
+    info->kernel.year+= ((i2>>8)&0xf)*100;
+    info->kernel.year+= ((i2>>12)&0xf)*1000;
 
 /*
  * Convert month from BCD to decimal
  */
-	i2 = (i >> 8) & 0xff;
+    i2 = (i >> 8) & 0xff;
 
-	info->kernel.month = i2 & 0xf;
-	info->kernel.month+= (i2>>4) * 10;
+    info->kernel.month = i2 & 0xf;
+    info->kernel.month+= (i2>>4) * 10;
 
 /*
  * Convert day from BCD to decimal
  */
-	i2 = i & 0xff;
+    i2 = i & 0xff;
 
-	info->kernel.day = i2 & 0xf;
-	info->kernel.day+= (i2>>4) * 10;
+    info->kernel.day = i2 & 0xf;
+    info->kernel.day+= (i2>>4) * 10;
 
 /*
  * Unless we receive something in the range >= 1 && <= 16,
  * RAM size will be reported as 2 Megabytes
  */
 
-	i = GetRamSize();
+    i = GetRamSize();
 
-	if(i == 0 || i > 16)
-		info->system.memory = 2<<20; /* 2 Megabytes */
-	else
-		info->system.memory <<= 20;
+    if(i == 0 || i > 16)
+        info->system.memory = 2<<20; /* 2 Megabytes */
+    else
+        info->system.memory <<= 20;
 }
 
 
 
 int get_real_file_size(char *name)
 {
-	struct DIRENTRY dirent_buf;
+    struct DIRENTRY dirent_buf;
 
-	if(firstfile(name, &dirent_buf) == &dirent_buf)
-		return dirent_buf.size;
-	else
-		return 0;
+    if(firstfile(name, &dirent_buf) == &dirent_buf)
+        return dirent_buf.size;
+    else
+        return 0;
 }
 
 int get_file_size(char *name)
 {
-	int i = get_real_file_size(name);
+    int i = get_real_file_size(name);
 
-	if(strncmp(name, "cdrom:", 6) == 0)
-	{
-		if(i & 0x7ff)
-		{
-			i += 0x800;
-			i &= ~0x7ff;
-		}
-	}else if(strncmp(name, "bu", 2) == 0)
-	{
-		if(i & 0x7f)
-		{
-			i += 0x80;
-			i &= ~0x7f;
-		}
-	}
+    if(strncmp(name, "cdrom:", 6) == 0)
+    {
+        if(i & 0x7ff)
+        {
+            i += 0x800;
+            i &= ~0x7ff;
+        }
+    }else if(strncmp(name, "bu", 2) == 0)
+    {
+        if(i & 0x7f)
+        {
+            i += 0x80;
+            i &= ~0x7f;
+        }
+    }
 
-	return i;
+    return i;
 }
 
 int SetRCnt(int spec, unsigned short target, unsigned int mode)
 {
-	spec &= 0xf;
+    spec &= 0xf;
 
-	if(spec >= 3)
-		return 0;
+    if(spec >= 3)
+        return 0;
 
-	RCNT_MODE(spec)=0;
-	RCNT_TARGET(spec)=target;
-	RCNT_MODE(spec)=mode;
+    RCNT_MODE(spec)=0;
+    RCNT_TARGET(spec)=target;
+    RCNT_MODE(spec)=mode;
 
-	return 1;
+    return 1;
 }
 
 unsigned short GetRCnt(int spec)
 {
-	spec &= 0xf;
+    spec &= 0xf;
 
-	if(spec >= 4)
-		return -1;
+    if(spec >= 4)
+        return -1;
 
-	return ((unsigned short)RCNT_COUNT(spec) & 0xffff);
+    return ((unsigned short)RCNT_COUNT(spec) & 0xffff);
 }
 
 int StartRCnt(int spec)
 {
-	spec &= 0xf;
+    spec &= 0xf;
 
-	if(spec >= 3)
-		return 0;
+    if(spec >= 3)
+        return 0;
 
-	IMASK |= 1 << (spec + 4);
+    IMASK |= 1 << (spec + 4);
 
-	return 1;
+    return 1;
 }
 
 int StopRCnt(int spec)
 {
-	spec &= 0xf;
+    spec &= 0xf;
 
-	if(spec >= 3)
-		return 0;
+    if(spec >= 3)
+        return 0;
 
-	IMASK ^= 1 << (spec + 4);
+    IMASK ^= 1 << (spec + 4);
 
-	return 1;
+    return 1;
 }
 
 void SetVBlankHandler(void (*callback)())
 {
-	if(psxSdkFlags & PSX_INIT_NOBIOS)
-	{
-		_EXC_vblank_handler_set = 0;
-		_EXC_vblank_handler = callback;
-		_EXC_vblank_handler_set = 1;
-		return;
-	}
+    if(psxSdkFlags & PSX_INIT_NOBIOS)
+    {
+        _EXC_vblank_handler_set = 0;
+        _EXC_vblank_handler = callback;
+        _EXC_vblank_handler_set = 1;
+        return;
+    }
 
-	if(vblank_handler_set == 1)
-	{
-		EnterCriticalSection();
+    if(vblank_handler_set == 1)
+    {
+        EnterCriticalSection();
 
-		vblank_handler_callback = callback;
+        vblank_handler_callback = callback;
 
-		ExitCriticalSection();
+        ExitCriticalSection();
 
-		return;
-	}
+        return;
+    }
 
 // Enter critical section
 
-	EnterCriticalSection();
+    EnterCriticalSection();
 
-	IMASK |= 1;
+    IMASK |= 1;
 
-	vblank_handler_event_id = OpenEvent(VSync, 2, 0x1000, vblank_handler);
-	EnableEvent(vblank_handler_event_id);
+    vblank_handler_event_id = OpenEvent(VSync, 2, 0x1000, vblank_handler);
+    EnableEvent(vblank_handler_event_id);
 
-	vblank_handler_callback = callback;
-	vblank_handler_set = 1;
+    vblank_handler_callback = callback;
+    vblank_handler_set = 1;
 
 // Exit critical section
 
-	ExitCriticalSection();
+    ExitCriticalSection();
 }
 
 void RemoveVBlankHandler(void)
 {
-	if(psxSdkFlags & PSX_INIT_NOBIOS)
-	{
-		_EXC_vblank_handler_set = 0;
-		_EXC_vblank_handler = NULL;
-		return;
-	}
+    if(psxSdkFlags & PSX_INIT_NOBIOS)
+    {
+        _EXC_vblank_handler_set = 0;
+        _EXC_vblank_handler = NULL;
+        return;
+    }
 
-	if(vblank_handler_set)
-	{
-		EnterCriticalSection();
+    if(vblank_handler_set)
+    {
+        EnterCriticalSection();
 
-		DisableEvent(vblank_handler_event_id);
-		CloseEvent(vblank_handler_event_id);
+        DisableEvent(vblank_handler_event_id);
+        CloseEvent(vblank_handler_event_id);
 
-		//IMASK^=1;
-		// ^ commented because masking out vblank could give problems to other bios functions
+        //IMASK^=1;
+        // ^ commented because masking out vblank could give problems to other bios functions
 
-		vblank_handler_set = 0;
+        vblank_handler_set = 0;
 
-		ExitCriticalSection();
-	}
+        ExitCriticalSection();
+    }
 }
 
 void SetRCntHandler(void (*callback)(), int spec, unsigned short target)
 {
-	if(psxSdkFlags & PSX_INIT_NOBIOS)
-		return; // Not yet supported in No-Bios Mode
+    if(psxSdkFlags & PSX_INIT_NOBIOS)
+        return; // Not yet supported in No-Bios Mode
 
-	if(rcnt_handler_set)
-	{
-		EnterCriticalSection();
+    if(rcnt_handler_set)
+    {
+        EnterCriticalSection();
 
-		rcnt_handler_callback = callback;
+        rcnt_handler_callback = callback;
 
-		ExitCriticalSection();
+        ExitCriticalSection();
 
-		return;
-	}
+        return;
+    }
 
-	// Enter critical section
+    // Enter critical section
 
-	SetRCnt(spec, target, RCntIntr | 0x08 | 0x10 | 0x40);
-	StartRCnt(spec);
+    SetRCnt(spec, target, RCntIntr | 0x08 | 0x10 | 0x40);
+    StartRCnt(spec);
 
-	EnterCriticalSection();
-	rcnt_handler_event_id = OpenEvent(RCNT_ADDR(spec), 2, 0x1000, rcnt_handler);
+    EnterCriticalSection();
+    dprintf("Hardware event address = 0x%08X\n", RCNT_ADDR(spec));
+    rcnt_handler_event_id = OpenEvent(RCNT_ADDR(spec), 2, 0x1000, rcnt_handler);
 
-	EnableEvent(rcnt_handler_event_id);
+    dprintf("rcnt_handler_event_id = 0x%08X\n", rcnt_handler_event_id);
+
+    EnableEvent(rcnt_handler_event_id);
 
     ChangeClearRCnt(spec, 1);
 
-	rcnt_handler_callback = callback;
-	rcnt_handler_set = spec;
+    rcnt_handler_callback = callback;
+    rcnt_handler_set = spec;
 
     RCNT_COUNT(spec) = 0;
 
-	switch(spec)
-	{
-		case RCntCNT0: rcnt_handler_evfield = 1 << 4; break;
-		case RCntCNT1: rcnt_handler_evfield = 1 << 5; break;
-		case RCntCNT2: rcnt_handler_evfield = 1 << 6; break;
-		case RCntCNT3: rcnt_handler_evfield = 1; break;
-	}
+    switch(spec)
+    {
+        case RCntCNT0: rcnt_handler_evfield = 1 << 4; break;
+        case RCntCNT1: rcnt_handler_evfield = 1 << 5; break;
+        case RCntCNT2: rcnt_handler_evfield = 1 << 6; break;
+        case RCntCNT3: rcnt_handler_evfield = 1; break;
+    }
 
 // Exit critical section
 
-	ExitCriticalSection();
+    ExitCriticalSection();
 }
 
 void RemoveRCntHandler(int spec)
 {
-	if(psxSdkFlags & PSX_INIT_NOBIOS)
-		return; // Not yet supported in No-Bios Mode
+    if(psxSdkFlags & PSX_INIT_NOBIOS)
+        return; // Not yet supported in No-Bios Mode
 
-	if(rcnt_handler_set)
-	{
-		EnterCriticalSection();
+    if(rcnt_handler_set)
+    {
+        EnterCriticalSection();
 
-		DisableEvent(rcnt_handler_event_id);
-		CloseEvent(rcnt_handler_event_id);
+        DisableEvent(rcnt_handler_event_id);
+        CloseEvent(rcnt_handler_event_id);
 
-		rcnt_handler_set = 0;
+        rcnt_handler_set = 0;
 
-		ExitCriticalSection();
-	}
+        ExitCriticalSection();
+    }
 }
 
 const char *GetSystemRomVersion(void)
@@ -534,46 +537,46 @@ const char *GetSystemRomVersion(void)
 
 // If getting the pointer is not possible, a pointer to a string saying "System ROM Unavailable" is returned.
 
-	int x;
+    int x;
 
-	for(x = 0x7ffee; x >= 0; x--)
-		if(memcmp("System ROM Version", (void*)(0xbfc00000 + x), 18) == 0)
-			return (char*)(0xbfc00000 + x);
+    for(x = 0x7ffee; x >= 0; x--)
+        if(memcmp("System ROM Version", (void*)(0xbfc00000 + x), 18) == 0)
+            return (char*)(0xbfc00000 + x);
 
-	return sysromver_unavail;
+    return sysromver_unavail;
 }
 
 int PSX_RestoreBiosState(void)
 {
-	if(!(psxSdkFlags & PSX_INIT_SAVESTATE))
-		return 0; // can't restore BIOS state if it was not saved previously
+    if(!(psxSdkFlags & PSX_INIT_SAVESTATE))
+        return 0; // can't restore BIOS state if it was not saved previously
 
-	EnterCriticalSection();
-	memcpy((void*)0x80000000, psxBiosState, 0x10000);
-	ExitCriticalSection();
+    EnterCriticalSection();
+    memcpy((void*)0x80000000, psxBiosState, 0x10000);
+    ExitCriticalSection();
 
-	return 1;
+    return 1;
 }
 
 unsigned int PSX_GetInitFlags(void)
 {
-	return psxSdkFlags;
+    return psxSdkFlags;
 }
 
 void PSX_WarmReboot(void)
 {
-	if(psxSdkFlags & PSX_INIT_NOBIOS)
-	{
+    if(psxSdkFlags & PSX_INIT_NOBIOS)
+    {
 psx_warmreboot_nobios:
-		PSX_DeInit();
-		__asm__("j _start");
-		__asm__("nop");
-	}
-	else
-	{
-		if(!(psxSdkFlags & PSX_INIT_CD))
-			goto psx_warmreboot_nobios;
+        PSX_DeInit();
+        __asm__("j _start");
+        __asm__("nop");
+    }
+    else
+    {
+        if(!(psxSdkFlags & PSX_INIT_CD))
+            goto psx_warmreboot_nobios;
 
-		BIOSWarmReboot();
-	}
+        BIOSWarmReboot();
+    }
 }

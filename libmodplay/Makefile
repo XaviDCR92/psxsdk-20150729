@@ -8,7 +8,7 @@ all: libmodplay.a libmodplay_nopsx.a
 
 modplay.o: modplay.c
 	$(CC) $(CFLAGS) -c modplay.c
-	
+
 mod.o: mod.c
 	$(CC) $(CFLAGS) -c mod.c
 
@@ -28,7 +28,7 @@ c669_nopsx.o: c669.c
 
 mtm_nopsx.o: mtm.c
 	$(HOST_CC) $(HOST_CFLAGS) -DNO_PSX_LIB -c mtm.c -o mtm_nopsx.o
-	
+
 xm_nopsx.o: xm.c
 	$(HOST_CC) $(HOST_CFLAGS) -DNO_PSX_LIB -c xm.c -o xm_nopsx.o
 

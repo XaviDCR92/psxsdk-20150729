@@ -12,6 +12,10 @@
 typedef unsigned int size_t;
 typedef signed int ssize_t;
 
+#ifndef NULL
+#define NULL    ((void*)0)
+#endif /* NULL */
+
 /* Conversion functions */
 
 int atoi(const char *s);
@@ -27,7 +31,7 @@ char *ulltoa(unsigned long long value, char *str, int base);
 
 // Random number functions
 
-#define RAND_MAX		0x7fffffff
+#define RAND_MAX        0x7fffffff
 
 int rand(void);
 void srand(unsigned int seed);
@@ -59,8 +63,8 @@ void call_atexit_callbacks(void);
 
 // Program return codes
 
-#define EXIT_SUCCESS	0
-#define EXIT_FAILURE	1
+#define EXIT_SUCCESS    0
+#define EXIT_FAILURE    1
 
 #endif
 
