@@ -140,15 +140,9 @@ void PSX_ReadPad(unsigned short *padbuf, unsigned short *padbuf2)
     padbuf_a[0] = padbuf;
     padbuf_a[1] = padbuf2;
 
-<<<<<<< Updated upstream
-    for(x = 0; x < 2; x++)
-    {
-        unsigned char* arr = psxsdkPadArr[x];
-=======
 	for(x = 0; x < 2; x++)
 	{
         unsigned char* const arr = psxsdkPadArr[x];
->>>>>>> Stashed changes
 
         pad_read_raw(x, arr);
 
