@@ -53,6 +53,7 @@ volatile unsigned char cdrom_command_stat[2];
 
 static void CdSetIndex(const unsigned char index);
 int* _internal_cdrom_handler(void);
+void cdrom_handler_callback(void);
 
 enum tCdInt CdGetInterrupt(void)
 {
@@ -65,6 +66,11 @@ enum tCdInt CdGetInterrupt(void)
     while ((eCdInt = (enum tCdInt)(CDREG(3) & INT_MASK)) == CD_NOINT);
 
     return eCdInt;
+}
+
+void cdrom_handler_callback(void)
+{
+
 }
 
 static void CdAcknowledgeInterrupts(void)
