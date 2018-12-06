@@ -50,6 +50,7 @@ static const unsigned char CdCommandParams[MaxCdl] = // 0 = single int, 1 = doub
 volatile int cdrom_handler_event_id;
 volatile unsigned char cdrom_last_command;
 volatile unsigned char cdrom_command_stat[2];
+volatile int cdrom_command_direct;
 
 static void CdSetIndex(const unsigned char index);
 int* _internal_cdrom_handler(void);
