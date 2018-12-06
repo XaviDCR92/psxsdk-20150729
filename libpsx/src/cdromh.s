@@ -61,13 +61,13 @@ _internal_cdrom_handler:
 # exit and let the BIOS do its work.
 
 cdrom_check_direct_cmd:
-    #la $t0, cdrom_command_direct
+    la $t0, cdrom_command_direct
     lw $t1, 0($t0)
     beq $t1, $zero, cdrom_handler_end
     nop
 
 cdrom_fire_user_handler:
-    #la $t0, cdrom_handler_callback
+    la $t0, cdrom_handler_callback
     lw $t1, 0($t0)
 
     addiu $sp, $sp, -24
