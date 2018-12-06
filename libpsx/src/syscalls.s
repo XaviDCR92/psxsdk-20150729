@@ -349,22 +349,36 @@ BIOSWarmReboot:
 	nop
 	j 0xa0
 
+<<<<<<< Updated upstream
 # Thread functions
 
 .global OpenThread
 .global ChangeThread
 .global GetGP
 
+=======
+
+# Thread functions
+.global OpenThread
+.global ChangeThread
+.global GetGP
+>>>>>>> Stashed changes
 OpenThread:
     li $9, 0x0E
     j 0xb0
     nop
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 ChangeThread:
     li $9, 0x10
     j 0xb0
     nop
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 GetGP:
     lw $v0, 0($gp)
     j $ra

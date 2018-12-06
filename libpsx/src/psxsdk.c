@@ -23,11 +23,12 @@ unsigned char padread_buf[2][8];
 
 void (*vblank_handler_callback)();
 
-extern int *vblank_handler();
+int *vblank_handler();
 
 void (*rcnt_handler_callback)();
-
-extern int *rcnt_handler();
+void (*sio_handler_callback)();
+int *rcnt_handler();
+int *sio_handler(void);
 
 /*static unsigned int vblank_queue_buf[4] = {0x0, // Will contain next interrupt handler in queue
                                     0x0, // func1
@@ -139,9 +140,15 @@ void PSX_ReadPad(unsigned short *padbuf, unsigned short *padbuf2)
     padbuf_a[0] = padbuf;
     padbuf_a[1] = padbuf2;
 
+<<<<<<< Updated upstream
     for(x = 0; x < 2; x++)
     {
         unsigned char* arr = psxsdkPadArr[x];
+=======
+	for(x = 0; x < 2; x++)
+	{
+        unsigned char* const arr = psxsdkPadArr[x];
+>>>>>>> Stashed changes
 
         pad_read_raw(x, arr);
 
@@ -398,6 +405,28 @@ int StopRCnt(int spec)
     IMASK ^= 1 << (spec + 4);
 
     return 1;
+}
+
+void SetSIOHandler(void (*const callback)(void))
+{
+    static int sio_handler_callback_is_set;
+
+    if (!sio_handler_callback_is_set)
+    {
+        EnterCriticalSection();
+
+        sio_handler_callback = callback;
+
+        const unsigned int eventID = OpenEvent(0xF000000B, 2, 0x1000, &sio_handler);
+
+        dprintf("Serial ISR event ID = 0x%08X\n", eventID);
+
+        EnableEvent(eventID);
+
+        sio_handler_callback_is_set = 1;
+
+        ExitCriticalSection();
+    }
 }
 
 void SetVBlankHandler(void (*callback)())

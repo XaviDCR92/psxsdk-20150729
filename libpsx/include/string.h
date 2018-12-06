@@ -59,4 +59,3 @@ int ffsl(long value);
 int ffsll(long long value);
 
 #endif
-

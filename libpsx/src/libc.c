@@ -202,6 +202,7 @@ int fread(void *ptr, int size, int nmemb, FILE *f)
         max = 2048 - (f->pos & 2047);
 
         //printf("ptr(FIRST) = %d, %x\n", ptr, ptr);
+<<<<<<< Updated upstream
         dprintf("rsize = %d\n", rsize);
 
         memcpy(ptr, onesec_buf + (f->pos & 2047), (rsize > max) ? max : rsize);
@@ -213,6 +214,17 @@ int fread(void *ptr, int size, int nmemb, FILE *f)
         nsect--;
         csize -= max;
 
+=======
+        memcpy(ptr, onesec_buf + (f->pos & 2047), (rsize > max) ? max : rsize);
+
+        // Middle sector
+        ptr += max;
+
+        //printf("ptr(MIDDLEsex) = %d, %x\n", ptr, ptr);
+        nsect--;
+        csize -= max;
+
+>>>>>>> Stashed changes
         if(nsect > 1)
         {
             //lseek(f->fildes, (f->pos & (~0x7ff)) + 2048, SEEK_SET);
