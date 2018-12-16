@@ -221,6 +221,9 @@ void PSX_ReadMouse(unsigned short* dig_pad1, unsigned short* adc_pad1);
 
 void PSX_PollPad(int pad_num);
 
+void PSX_PollPad_Fast(int pad_num, psx_pad_state *pad_state);
+void PSX_PollPad_Fast_Ex(const unsigned char* const arr, psx_pad_state* const pad_state);
+
 /**
  * Takes a pointer to a struct psx_info structure, and fills it
  * with information about the PlayStation on which the program is running.

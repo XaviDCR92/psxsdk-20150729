@@ -66,18 +66,18 @@ typedef struct
 	unsigned char type;
 	/** Button bitmask. To be checked by AND'ing with the defines in
 	     psxpad.h for buttons. If a bit is set for a button, it is pressed.
-	     Checking the pad type to use this bitmask is not necessary at all, 
+	     Checking the pad type to use this bitmask is not necessary at all,
 	     and if button emulations are set up, this may not represent the
 	     buttons actually pressed. Also reliable when type is PADTYPE_UNKNOWN */
 	unsigned short buttons;
-	
-	/** Extra data for non-normal controllers. 
+
+	/** Extra data for non-normal controllers.
 	     You should check the value of the type field before accessing any of this data
 	*/
-	
+
 	union extra
 	{
-		/** Data for analog joysticks. 
+		/** Data for analog joysticks.
 		 *   @attention Due to the poor calibration of the analog sticks, it is recommended
 		 *   that you do not assume "left" for X values lower than zero and
 		 *   "right" for X values higher than zero.
@@ -88,22 +88,22 @@ typedef struct
 		 *
 		 *   @attention The same is valid for Y values, "up" and "down".
 		 **/
-		
+
 		struct analogJoy
 		{
-			/** X coordinates for the left analog stick and the right analog stick 
-			 * @par Value 
+			/** X coordinates for the left analog stick and the right analog stick
+			 * @par Value
 			 * Totally left: -128, totally right: 127
 			*/
 			signed char x[2];
-			/** Y coordinates for the left analog stick and the right analog stick 
-			 * @par Value 
+			/** Y coordinates for the left analog stick and the right analog stick
+			 * @par Value
 			 * Totally up: -128, totally down: 127
-			*/			
+			*/
 			signed char y[2];
 		}analogJoy;
-		
-		/** Data for analog joypads (controller). 
+
+		/** Data for analog joypads (controller).
 		 *   @attention Due to the poor calibration of the analog sticks, it is recommended
 		 *   that you do not assume "left" for X values lower than zero and
 		 *   "right" for X values higher than zero.
@@ -114,29 +114,29 @@ typedef struct
 		 *
 		 *   @attention The same is valid for Y values, "up" and "down".
 		 **/
-		
+
 		struct analogPad
 		{
-			/** X coordinates for the left analog stick and the right analog stick 
-			 * @par Value 
+			/** X coordinates for the left analog stick and the right analog stick
+			 * @par Value
 			 * Totally left: -128, totally right: 127
 			*/
 			signed char x[2];
-			/** Y coordinates for the left analog stick and the right analog stick 
-			 * @par Value 
+			/** Y coordinates for the left analog stick and the right analog stick
+			 * @par Value
 			 * Totally up: -128, totally down: 127
-			*/			
+			*/
 			signed char y[2];
 		}analogPad;
-		
-		/** Data for Namco NeGcon and steering wheels using its protocol. 
+
+		/** Data for Namco NeGcon and steering wheels using its protocol.
 		  * Many steering wheels use this protocol or can switch to it if desired.
 		 */
-		
+
 		struct negCon
 		{
 			/**
-			 * Steering wheel position. 
+			 * Steering wheel position.
 			 *
 			 * Unlike analog sticks, the steering is accurate and this value is reliable.
 			 *
@@ -144,38 +144,37 @@ typedef struct
 			 * When steering left it is lower than zero, when steering right it is higher than zero
 			 * and when not steering at all it is zero.
 			 */
-			
+
 			signed char steering;
-			
+
 			/**
 			 * Pressure for button I (1).
-			 * @par Value 
+			 * @par Value
 			 * 0 = not pressed, 255 = maximum pressure
 			 */
-			
+
 			unsigned char one;
-			
+
 			/**
 			 * Pressure for button II (2).
-			 * @par Value 
+			 * @par Value
 			 * 0 = not pressed, 255 = maximum pressure
 			 */
-			
+
 			unsigned char two;
-			
+
 			/**
 			 * Pressure for "L" shoulder button.
-			 * @par Value 
+			 * @par Value
 			 * 0 = not pressed, 255 = maximum pressure
 			 */
-			
+
 			unsigned char shoulder;
 		}negCon;
 	}extra;
 }psx_pad_state;
 
 void QueryPAD(int pad_n, unsigned char *in, unsigned char *out, int len);
-void PSX_PollPad_Fast(int pad_num, psx_pad_state *pad_state);
 void pad_read_raw(int pad_n, unsigned char *arr);
 void pad_escape_mode(int pad_n, int enable);
 void pad_enable_vibration(int pad_n);

@@ -51,7 +51,7 @@ void _internal_cdromlib_init(void);
 static unsigned int psxSdkFlags = 0;
 
 static unsigned char *psxBiosState;
-unsigned char psxsdkPadArr[PAD_READ_RAW_SIZE][4];
+unsigned char psxsdkPadArr[PAD_READ_RAW_SIZE][2];
 
 extern void _96_remove(void);
 extern void _96_init(void);
@@ -183,13 +183,10 @@ void PSX_ReadMouse(unsigned short* dig_pad1, unsigned short* adc_pad1)
     }
 }
 
-void PSX_PollPad_Fast(int pad_num, psx_pad_state *pad_state)
+void PSX_PollPad_Fast_Ex(const unsigned char* const arr, psx_pad_state* const pad_state)
 {
     //Rely on pad_read_raw being called AFTER PSX_ReadPad(),
     //so that pad_read_raw is only called once.
-
-    unsigned char *arr = psxsdkPadArr[pad_num];
-
     pad_state->status = arr[0];
     pad_state->id = arr[1];
 
@@ -236,6 +233,11 @@ void PSX_PollPad_Fast(int pad_num, psx_pad_state *pad_state)
         default:
             pad_state->type = PADTYPE_UNKNOWN;
     }
+}
+
+void PSX_PollPad_Fast(int pad_num, psx_pad_state *pad_state)
+{
+    PSX_PollPad_Fast_Ex(psxsdkPadArr[pad_num], pad_state);
 }
 
 void PSX_PollPad(int pad_num)
