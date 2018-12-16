@@ -384,7 +384,7 @@ unsigned int PSX_GetInitFlags(void);
  * @param h Pointer to (new) VBlank handler function
  */
 
-void SetVBlankHandler(void (*callback)());
+void SetVBlankHandler(void (*const callback)(void));
 
 /**
  * Sets a handler function for SIO interrupt.

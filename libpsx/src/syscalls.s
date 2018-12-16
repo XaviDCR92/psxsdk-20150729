@@ -349,8 +349,8 @@ BIOSWarmReboot:
 	nop
 	j 0xa0
 
-
 # Thread functions
+
 .global OpenThread
 .global ChangeThread
 .global GetGP

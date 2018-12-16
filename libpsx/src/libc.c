@@ -202,14 +202,8 @@ int fread(void *ptr, int size, int nmemb, FILE *f)
         max = 2048 - (f->pos & 2047);
 
         //printf("ptr(FIRST) = %d, %x\n", ptr, ptr);
-        memcpy(ptr, onesec_buf + (f->pos & 2047), (rsize > max) ? max : rsize);
+        //~dprintf("rsize = %d\n", rsize);
 
-        // Middle sector
-        ptr += max;
-
-        //printf("ptr(MIDDLEsex) = %d, %x\n", ptr, ptr);
-        nsect--;
-        csize -= max;
         memcpy(ptr, onesec_buf + (f->pos & 2047), (rsize > max) ? max : rsize);
 
         // Middle sector
