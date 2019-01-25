@@ -27,6 +27,12 @@ typedef signed int ssize_t;
 
 #define EOF     -1
 
+#ifdef __cplusplus
+#define EXTERNC extern "C"
+#else
+#define EXTERNC
+#endif
+
 /* NULL */
 #ifndef NULL
 #define NULL (void*)0
@@ -68,15 +74,15 @@ typedef struct
 
 /* Console functions */
 
-extern int putchar(int c);
-extern int puts(const char *str);
+EXTERNC int putchar(int c);
+EXTERNC int puts(const char *str);
 
 /**
  * BIOS printf() implementation. Does not support floating point.
  * NOTE: when redirect_stdio_to_sio() is used, PSXSDK's internal implementation is used instead.
  */
 
-extern int printf(const char *format, ...);
+EXTERNC int printf(const char *format, ...);
 
 // If PSXSDK_DEBUG is defined, dprintf() calls are turned into printf() calls
 // otherwise they are left out
@@ -87,25 +93,25 @@ extern int printf(const char *format, ...);
     #define dprintf(fmt, ...)
 #endif
 
-int vsnprintf(char *string, size_t size, const char *fmt, va_list ap);
-int vsprintf(char *string, const char *fmt, va_list ap);
-int sprintf(char *string, const char *fmt, ...);
-int snprintf(char *string, size_t size, const char *fmt, ...);
-int vprintf(char *fmt, va_list ap);
+EXTERNC int vsnprintf(char *string, size_t size, const char *fmt, va_list ap);
+EXTERNC int vsprintf(char *string, const char *fmt, va_list ap);
+EXTERNC int sprintf(char *string, const char *fmt, ...);
+EXTERNC int snprintf(char *string, size_t size, const char *fmt, ...);
+EXTERNC int vprintf(char *fmt, va_list ap);
 
-FILE *fdopen(int fildes, const char *mode);
-FILE *fopen(char* path, const char *mode);
-int fclose(FILE *stream);
-int fread(void *ptr, int size, int nmemb, FILE *f);
+EXTERNC FILE *fdopen(int fildes, const char *mode);
+EXTERNC FILE *fopen(char* path, const char *mode);
+EXTERNC int fclose(FILE *stream);
+EXTERNC int fread(void *ptr, int size, int nmemb, FILE *f);
 
-int fgetc(FILE *f);
-int ftell(FILE *f);
-int fseek(FILE *f, int offset, int whence);
+EXTERNC int fgetc(FILE *f);
+EXTERNC int ftell(FILE *f);
+EXTERNC int fseek(FILE *f, int offset, int whence);
 
 #define getc(f)     fgetc(f)
 
-int rename(char *oldname, char *newname);
-int remove(char *filename);
+EXTERNC int rename(char *oldname, char *newname);
+EXTERNC int remove(char *filename);
 
 #ifndef __cplusplus
 // Define delete(x) to be remove(x) only when compiling plain C.
@@ -148,4 +154,3 @@ int sio_vprintf(const char *fmt, va_list ap);
 #endif
 
 #endif
-

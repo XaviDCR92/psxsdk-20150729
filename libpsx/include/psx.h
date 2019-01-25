@@ -42,19 +42,19 @@
  *   - PSXSDK 2015-07-29
  */
 
-#define PSXSDK_VERSION			0x0599
+#define PSXSDK_VERSION          0x0599
 
 /**
  * PSXSDK version information in string format
  */
 
-#define PSXSDK_VERSION_STRING		"0.5.99"
+#define PSXSDK_VERSION_STRING       "0.5.99"
 
 /**
  * PSXSDK version date (BCD YYYY-MM-DD)
  */
 
-#define PSXSDK_VERSION_DATE		0x20150729
+#define PSXSDK_VERSION_DATE     0x20150729
 
 
 /*
@@ -77,6 +77,12 @@
 //#include <adpcm.h>
 #include <psxgte.h>
 
+#ifdef __cplusplus
+#define EXTERNC extern "C"
+#else
+#define EXTERNC
+#endif
+
 /**
  * Scratch pad - unused data cache, that can be used as "fast RAM"
  */
@@ -89,18 +95,18 @@ extern unsigned char __scratchpad[1024];
 
 enum cop0_register_numbers
 {
-	/** Contains the last invalid program address which caused a trap.
+    /** Contains the last invalid program address which caused a trap.
 
-	      It is set by address errors of all kinds. */
-	COP0_BADVADDR = 8,
-	/** CPU mode flags (status register) */
-	COP0_SR = 12,
-	/** Describes the most recently recognized exception. */
-	COP0_CAUSE = 13,
-	/** Return address from trap */
-	COP0_EPC = 14,
-	/** COP0 type and revision level */
-	COP0_PRID = 15,
+          It is set by address errors of all kinds. */
+    COP0_BADVADDR = 8,
+    /** CPU mode flags (status register) */
+    COP0_SR = 12,
+    /** Describes the most recently recognized exception. */
+    COP0_CAUSE = 13,
+    /** Return address from trap */
+    COP0_EPC = 14,
+    /** COP0 type and revision level */
+    COP0_PRID = 15,
 };
 
 /**
@@ -109,15 +115,15 @@ enum cop0_register_numbers
 
 enum psx_rcnt_specs
 {
-	/** Pixel clock*/
-	RCntCNT0		= 0xf2000000,
-	/** Horizontal sync*/
-	RCntCNT1		= 0xf2000001,
-	/** System clock / 8 */
-	RCntCNT2		= 0xf2000002,
-	/** VSync (VBlank) */
-	RCntCNT3		= 0xf2000003,
-	VSync			= RCntCNT3
+    /** Pixel clock*/
+    RCntCNT0        = 0xf2000000,
+    /** Horizontal sync*/
+    RCntCNT1        = 0xf2000001,
+    /** System clock / 8 */
+    RCntCNT2        = 0xf2000002,
+    /** VSync (VBlank) */
+    RCntCNT3        = 0xf2000003,
+    VSync           = RCntCNT3
 };
 
 /**
@@ -126,30 +132,30 @@ enum psx_rcnt_specs
 
 enum psx_rcnt_modes
 {
-	/** Interrupt mode */
-	RCntIntr =	0x1000,
-	/** Ignore target and count to 65535 (hex: 0xFFFF) */
-	RCntNotar =	0x0100,
-	/** Timer stop mode */
-	RCntStop =	0x0010,
-	 /** System Clock mode */
-	RCntSC =	0x0001,
+    /** Interrupt mode */
+    RCntIntr =  0x1000,
+    /** Ignore target and count to 65535 (hex: 0xFFFF) */
+    RCntNotar = 0x0100,
+    /** Timer stop mode */
+    RCntStop =  0x0010,
+     /** System Clock mode */
+    RCntSC =    0x0001,
 };
 
 struct psx_info
 {
-	struct kernel
-	{
-		const char *version; // Kernel version
-		int year; // Kernel year
-		int month; // Kernel month
-		int day; // Kernel day
-	}kernel;
+    struct kernel
+    {
+        const char *version; // Kernel version
+        int year; // Kernel year
+        int month; // Kernel month
+        int day; // Kernel day
+    }kernel;
 
-	struct system
-	{
-		int memory; // RAM memory size
-	}system;
+    struct system
+    {
+        int memory; // RAM memory size
+    }system;
 };
 
 /**
@@ -164,12 +170,12 @@ void PSX_Init(void);
 
 enum psx_init_flags
 {
-	/** PSX_INIT_CD - Initialize CDROM filesystem */
-	PSX_INIT_CD = 1,
-	/** PSX_INIT_SAVESTATE - Save BIOS state before initializing the library */
-	PSX_INIT_SAVESTATE = 2,
-	/** PSX_INIT_NOBIOS - Remove control from the BIOS and let PSXSDK be in complete control */
-	PSX_INIT_NOBIOS = 4,
+    /** PSX_INIT_CD - Initialize CDROM filesystem */
+    PSX_INIT_CD = 1,
+    /** PSX_INIT_SAVESTATE - Save BIOS state before initializing the library */
+    PSX_INIT_SAVESTATE = 2,
+    /** PSX_INIT_NOBIOS - Remove control from the BIOS and let PSXSDK be in complete control */
+    PSX_INIT_NOBIOS = 4,
 };
 
 /**
@@ -221,8 +227,8 @@ void PSX_ReadMouse(unsigned short* dig_pad1, unsigned short* adc_pad1);
 
 void PSX_PollPad(int pad_num);
 
-void PSX_PollPad_Fast(int pad_num, psx_pad_state *pad_state);
-void PSX_PollPad_Fast_Ex(const unsigned char* const arr, psx_pad_state* const pad_state);
+EXTERNC void PSX_PollPad_Fast(int pad_num, psx_pad_state *pad_state);
+EXTERNC void PSX_PollPad_Fast_Ex(const unsigned char* const arr, psx_pad_state* const pad_state);
 
 /**
  * Takes a pointer to a struct psx_info structure, and fills it
@@ -279,7 +285,7 @@ void set_cop0_register(unsigned char register_num, unsigned int value);
  */
 
 unsigned int get_cop_register(unsigned char cop_num,
-							unsigned char register_num);
+                            unsigned char register_num);
 
 
 /**
@@ -290,7 +296,7 @@ unsigned int get_cop_register(unsigned char cop_num,
  */
 
 unsigned int get_cop_ctrl_register(unsigned char cop_num,
-							unsigned char register_num);
+                            unsigned char register_num);
 
 /**
  * Set value of the specified (data) register of a specified coprocessor
@@ -300,7 +306,7 @@ unsigned int get_cop_ctrl_register(unsigned char cop_num,
  */
 
  void set_cop_register(unsigned char cop_num,
-				unsigned char register_num, unsigned int value);
+                unsigned char register_num, unsigned int value);
 
 /**
  * Set value of the specified control register of a specified coprocessor
@@ -310,7 +316,7 @@ unsigned int get_cop_ctrl_register(unsigned char cop_num,
  */
 
  void set_cop_ctrl_register(unsigned char cop_num,
-				unsigned char register_num, unsigned int value);
+                unsigned char register_num, unsigned int value);
 
 /**
  * Make the specified coprocessor run the specified instruction
@@ -318,7 +324,7 @@ unsigned int get_cop_ctrl_register(unsigned char cop_num,
  */
 
 void run_cop_instruction(unsigned char cop_num,
-						unsigned int operation);
+                        unsigned int operation);
 
 // Root counter functions
 

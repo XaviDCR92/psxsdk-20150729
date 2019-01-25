@@ -16,6 +16,12 @@
 #include <types.h>
 #include <stddef.h>
 
+#ifdef __cplusplus
+#define EXTERNC extern "C"
+#else
+#define EXTERNC
+#endif
+
 char *strcat(char *s , const char *append);
 char *strncat(char *s , const char *append, size_t n);
 int strcmp(const char *dst , const char *src);
@@ -43,7 +49,7 @@ char *strndup(const char *str, size_t len);
 int strlcpy(char *dst, const char *src, size_t size);
 int strlcat(char *dst, const char *src, size_t size);
 
-void *memset(void *dst , char c , size_t n);
+EXTERNC void *memset(void *dst , char c , size_t n);
 void *memmove(void *dst , const void *src , size_t n);
 int memcmp(const void *b1 , const void *b2 , size_t n);
 void *memchr(void *s , int c , size_t n);
@@ -59,4 +65,3 @@ int ffsl(long value);
 int ffsll(long long value);
 
 #endif
-
