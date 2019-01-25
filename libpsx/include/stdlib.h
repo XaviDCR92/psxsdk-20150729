@@ -12,20 +12,26 @@
 typedef unsigned int size_t;
 typedef signed int ssize_t;
 
+#ifdef __cplusplus
+#define EXTERNC extern "C"
+#else
+#define EXTERNC
+#endif
+
 #ifndef NULL
 #define NULL    ((void*)0)
 #endif /* NULL */
 
 /* Conversion functions */
 
-int atoi(const char *s);
-long atol(const char *s);
-char *itoa(int value, char *str, int base);
-char *ltoa(long value, char *str, int base);
-char *lltoa(long long value, char *str, int base);
-char *utoa(unsigned int value, char *str, int base);
-char *ultoa(unsigned long value, char *str, int base);
-char *ulltoa(unsigned long long value, char *str, int base);
+EXTERNC int atoi(const char *s);
+EXTERNC long atol(const char *s);
+EXTERNC char *itoa(int value, char *str, int base);
+EXTERNC char *ltoa(long value, char *str, int base);
+EXTERNC char *lltoa(long long value, char *str, int base);
+EXTERNC char *utoa(unsigned int value, char *str, int base);
+EXTERNC char *ultoa(unsigned long value, char *str, int base);
+EXTERNC char *ulltoa(unsigned long long value, char *str, int base);
 //extern char atob(char *s); // Is this right?
 
 
@@ -33,33 +39,33 @@ char *ulltoa(unsigned long long value, char *str, int base);
 
 #define RAND_MAX        0x7fffffff
 
-int rand(void);
-void srand(unsigned int seed);
+EXTERNC int rand(void);
+EXTERNC void srand(unsigned int seed);
 
 // Quick sort
 
-void qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+EXTERNC void qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 
 // Memory allocation functions
 
 //#warning "malloc() family of functions NEEDS MORE TESTING"
 
-void *malloc(size_t size);
-void free(void *buf);
-void *calloc(size_t number, size_t size);
-void *realloc(void *buf , size_t n);
+EXTERNC void *malloc(size_t size);
+EXTERNC void free(void *buf);
+EXTERNC void *calloc(size_t number, size_t size);
+EXTERNC void *realloc(void *buf , size_t n);
 
-int abs(int x);
-long long strtoll(const char *nptr, char **endptr, int base);
-long strtol(const char *nptr, char **endptr, int base);
-double strtod(const char *nptr, char **endptr);
-long double strtold(const char *nptr, char **endptr);
-float strtof(const char *nptr, char **endptr);
+EXTERNC int abs(int x);
+EXTERNC long long strtoll(const char *nptr, char **endptr, int base);
+EXTERNC long strtol(const char *nptr, char **endptr, int base);
+EXTERNC double strtod(const char *nptr, char **endptr);
+EXTERNC long double strtold(const char *nptr, char **endptr);
+EXTERNC float strtof(const char *nptr, char **endptr);
 
 // Misc
-void abort(void);
-void exit(int status);
-void call_atexit_callbacks(void);
+EXTERNC void abort(void);
+EXTERNC void exit(int status);
+EXTERNC void call_atexit_callbacks(void);
 
 // Program return codes
 
@@ -67,4 +73,3 @@ void call_atexit_callbacks(void);
 #define EXIT_FAILURE    1
 
 #endif
-
