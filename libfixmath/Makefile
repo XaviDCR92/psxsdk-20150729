@@ -42,6 +42,7 @@ install:
 	cp libfixmath.a $(TOOLCHAIN_PREFIX)/lib
 	mkdir -p $(TOOLCHAIN_PREFIX)/include/fixmath
 	cp fixmath/*.h	$(TOOLCHAIN_PREFIX)/include/fixmath
+	cp fixmath/*.hpp	$(TOOLCHAIN_PREFIX)/include/fixmath
 	cp fixmath.h $(TOOLCHAIN_PREFIX)/include
 
 # Clean rules
