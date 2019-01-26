@@ -50,7 +50,7 @@ int strlcpy(char *dst, const char *src, size_t size);
 int strlcat(char *dst, const char *src, size_t size);
 
 EXTERNC void *memset(void *dst , char c , size_t n);
-void *memmove(void *dst , const void *src , size_t n);
+EXTERNC void *memmove(void *dst , const void *src , size_t n);
 int memcmp(const void *b1 , const void *b2 , size_t n);
 void *memchr(void *s , int c , size_t n);
 void *memrchr(void *b, int c, size_t len);

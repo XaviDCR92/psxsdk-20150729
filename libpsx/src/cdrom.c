@@ -92,6 +92,7 @@ static void CdAcknowledgeInterrupts(void)
 
 void CdSendCommand(const enum tCdCmd eCmd, const size_t num, ...)
 {
+#if 0
     va_list ap;
 
     /* Initialize variable-argument list. */
@@ -161,6 +162,7 @@ void CdSendCommand(const enum tCdCmd eCmd, const size_t num, ...)
 
     /* De-initialize variable-argument list. */
     va_end(ap);
+#endif
 }
 
 static void CdSetIndex(const unsigned char index)
@@ -182,6 +184,7 @@ static void CdSetIndex(const unsigned char index)
 
 int CdReadResults(unsigned char *out, int max)
 {
+#if 0
     int x;
     unsigned char *outo = out;
     unsigned char b;
@@ -208,6 +211,8 @@ int CdReadResults(unsigned char *out, int max)
     }
 
     return (out - outo);
+#endif
+    return 0;
 }
 
 void _internal_cdromlib_init()
@@ -231,13 +236,14 @@ void _internal_cdromlib_init()
 
     SysEnqIntRP(0, cdrom_queue_buf);
 
+#if 0
     IMASK |= 1 << 2;
 
     {
         const unsigned int eventID = OpenEvent(CDROM_HW_EVENT_ADDR, 2, 0x1000, _internal_cdrom_handler);
         EnableEvent(eventID);
     }
-
+#endif
     ExitCriticalSection(); // Enable IRQs
 }
 
