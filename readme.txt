@@ -1,3 +1,9 @@
+------------------------------------------------------
+THIS REPOSITORY HAS BEEN ARCHIVED
+Please use https://github.com/XaviDCR92/psxsdk instead
+------------------------------------------------------
+
+
 PSXSDK 0.5.99
 ReadMe and FAQ
 Last updated: July 29th 2015
